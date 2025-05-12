@@ -1,0 +1,35 @@
+# For more info on HTTP files go to https://aka.ms/vs/httpfile
+POST https://localhost:7088/submit
+Content-Type: application/json
+
+{
+  "userId": "aec74d40-83da-465d-aa09-0aef4e374435",
+  "url": "https://learn.microsoft.com/en-us/dotnet/core/whats-new/dotnet-9/overview",
+  "tags": [
+    ".net",
+    ".net 9",
+    "asp.net",
+    "c#",
+    "c# 13"
+  ]
+}
+
+###
+
+POST https://localhost:7088/submits
+Content-Type: application/json
+
+{
+  "userId": "aec74d40-83da-465d-aa09-0aef4e374435",
+  "urls": [
+    "https://www.sciencealert.com/a-new-quantum-paradox-throws-the-foundations-of-observed-reality-into-question/amp",
+    "https://cyclingtips.com/2020/06/santa-cruz-gets-into-the-road-wheelset-game-with-new-reserve-carbon-models/",
+    "https://www.blogto.com/eat_drink/2021/11/dickeys-bbq-toronto/",
+    "https://docs.microsoft.com/en-us/azure/static-web-apps/deploy-nextjs",
+    "https://engineering.atspotify.com/2023/04/spotifys-shift-to-a-fleet-first-mindset-part-1/",
+    "https://learn.microsoft.com/en-us/azure/architecture/example-scenario/apps/ecommerce-scenario",
+    "https://www.atlassian.com/blog/devops/open-devops"
+  ]
+}
+
+###

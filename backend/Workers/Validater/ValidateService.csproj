@@ -1,0 +1,24 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Worker">
+
+    <PropertyGroup>
+        <TargetFramework>net9.0</TargetFramework>
+        <Nullable>enable</Nullable>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <UserSecretsId>dotnet-ValidateService-243104cb-aeb0-4c73-941a-7c8e55a4e285</UserSecretsId>
+        <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+        <DockerfileContext>..\..\..\..</DockerfileContext>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Aspire.MongoDB.Driver.v3" Version="9.2.1" />
+        <PackageReference Include="Microsoft.Extensions.Hosting" Version="9.0.4" />
+        <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.22.1-Preview.1" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\..\Aspire\Defaults\Defaults.csproj" />
+        <ProjectReference Include="..\..\Common\Common.Data\Common.Data.csproj" />
+        <ProjectReference Include="..\..\Modules\Links\Links\Links.csproj" />
+        <ProjectReference Include="..\..\Modules\Submissions\Submissions\Submissions.csproj" />
+    </ItemGroup>
+</Project>

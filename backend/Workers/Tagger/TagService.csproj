@@ -1,0 +1,25 @@
+<Project Sdk="Microsoft.NET.Sdk.Worker">
+
+    <PropertyGroup>
+        <TargetFramework>net9.0</TargetFramework>
+        <Nullable>enable</Nullable>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <UserSecretsId>dotnet-TagService-6343bc3a-1b4c-4c07-ba66-13bbff60456b</UserSecretsId>
+        <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+        <DockerfileContext>..\..\..</DockerfileContext>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Aspire.MongoDB.Driver.v3" Version="9.2.1" />
+        <PackageReference Include="CommunityToolkit.Aspire.OllamaSharp" Version="9.4.1-beta.282" />
+        <PackageReference Include="Microsoft.Extensions.Hosting" Version="9.0.4" />
+        <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.22.1-Preview.1" />
+        <PackageReference Include="MongoDB.Bson" Version="3.4.0" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\..\Aspire\Defaults\Defaults.csproj" />
+        <ProjectReference Include="..\..\Common\Common.Data\Common.Data.csproj" />
+        <ProjectReference Include="..\..\Modules\Submissions\Submissions\Submissions.csproj" />
+    </ItemGroup>
+</Project>

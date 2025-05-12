@@ -1,0 +1,36 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+    <PropertyGroup>
+        <TargetFramework>net9.0</TargetFramework>
+        <Nullable>enable</Nullable>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <UserSecretsId>3636e182-1ef4-4476-9602-711ad5016cea</UserSecretsId>
+        <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+        <DockerfileContext>..\..</DockerfileContext>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Aspire.MongoDB.Driver.v3" Version="9.2.1" />
+        <PackageReference Include="Aspire.RabbitMQ.Client.v7" Version="9.2.1" />
+        <PackageReference Include="Aspire.StackExchange.Redis" Version="9.2.1" />
+        <PackageReference Include="Aspire.StackExchange.Redis.OutputCaching" Version="9.2.1" />
+        <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.4" />
+        <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.22.1-Preview.1" />
+        <PackageReference Include="SonarAnalyzer.CSharp" Version="10.9.0.115408">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\Common\Common.Data\Common.Data.csproj" />
+        <ProjectReference Include="..\Common\Common\Common.csproj" />
+        <ProjectReference Include="..\Modules\Links\Links\Links.csproj" />
+        <ProjectReference Include="..\Modules\Submissions\Submissions\Submissions.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <None Include=".http\Submissions.http" />
+    </ItemGroup>
+
+</Project>

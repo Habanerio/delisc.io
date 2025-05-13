@@ -16,7 +16,7 @@ namespace ValidateService;
 public class Worker : BackgroundService
 {
     private readonly ILogger<Worker> _logger;
-    private readonly int _pollingIntervalSeconds = 5;
+    private readonly int _pollingIntervalSeconds = 30;
     private readonly ILinksRepository _linksRepository;
     private readonly ISubmissionsRepository _submissionRepository;
 
@@ -47,16 +47,16 @@ public class Worker : BackgroundService
         {
             try
             {
-                var rslt = await _submissionRepository.GetAsync(
+                var rslts = await _submissionRepository.GetByStateAsync(
                     SubmissionState.New, cancellationToken: stoppingToken);
 
-                if (!rslt.IsSuccess)
+                if (!rslts.IsSuccess)
                 {
-                    _logger.LogError("Validating - {time}: {errors}", DateTimeOffset.Now, rslt.Errors);
+                    _logger.LogError("Validating - {time}: {errors}", DateTimeOffset.Now, rslts.Errors);
 
-                    Console.WriteLine(rslt.Errors);
+                    Console.WriteLine(rslts.Errors);
                 }
-                else if (rslt.ValueOrDefault is null)
+                else if (!rslts.ValueOrDefault.Any())
                 {
                     _logger.LogInformation("Validating - {time}: No new submissions", DateTimeOffset.Now);
 
@@ -64,14 +64,13 @@ public class Worker : BackgroundService
                 }
                 else
                 {
-                    await ProcessMessageAsync(rslt.ValueOrDefault, stoppingToken);
+                    await ProcessMessagesAsync(rslts.ValueOrDefault, stoppingToken);
                 }
-
             }
             catch (Exception e)
             {
                 // Log the error
-                _logger.LogError(e, "Error processing message.");
+                _logger.LogError(e, "Error while attempting to retrieve submissions to validate.");
 
                 // Dead letter?
             }
@@ -80,82 +79,88 @@ public class Worker : BackgroundService
         }
     }
 
-    private async Task ProcessMessageAsync(SubmissionEntity submission, CancellationToken cancellationToken)
+    private async Task ProcessMessagesAsync(IEnumerable<SubmissionEntity> submissions, CancellationToken cancellationToken)
     {
-        try
+        foreach (var submission in submissions)
         {
-            _logger.LogInformation("Validating - {time}: Processing `{url}`",
-                DateTimeOffset.Now, submission.Url);
-
-            // Validation Logic
-            submission.State = SubmissionState.Validating; // Update status in DB
-            await _submissionRepository.UpdateAsync(submission, cancellationToken);
-
-            var isValid = true;
-
-            if (!submission.Url.StartsWith("http"))
+            try
             {
-                isValid = false;
-                _logger.LogWarning(VERIFYING_ERROR_MESSAGE,
-                    DateTimeOffset.Now, submission.Url, "Invalid URL format");
+                _logger.LogInformation("Validating - {time}: Processing `{url}`",
+                    DateTimeOffset.Now, submission.Url);
 
-                submission.State = SubmissionState.InvalidProtocol;
+                // Validation Logic
+                submission.State = SubmissionState.Validating; // Update status in DB
                 await _submissionRepository.UpdateAsync(submission, cancellationToken);
 
-                return;
-            }
+                if (!submission.Url.StartsWith("http"))
+                {
+                    _logger.LogWarning(VERIFYING_ERROR_MESSAGE,
+                        DateTimeOffset.Now, submission.Url, "Invalid URL format");
 
-            var domain = ParseDomainFromUrl(submission.Url);
+                    submission.State = SubmissionState.Rejected;
+                    submission.Message = $"Invalid URL: {submission.Url}";
 
-            if (string.IsNullOrWhiteSpace(domain))
-            {
-                isValid = false;
-                _logger.LogWarning(VERIFYING_ERROR_MESSAGE,
-                    DateTimeOffset.Now, submission.Url, "Domain could not be parsed");
+                    await _submissionRepository.UpdateAsync(submission, cancellationToken);
 
-                submission.State = SubmissionState.Invalidated;
+                    continue;
+                }
+
+                var domain = ParseDomainFromUrl(submission.Url);
+
+                if (string.IsNullOrWhiteSpace(domain))
+                {
+                    _logger.LogWarning(VERIFYING_ERROR_MESSAGE,
+                        DateTimeOffset.Now, submission.Url, "Domain could not be parsed");
+
+                    submission.State = SubmissionState.Rejected;
+                    submission.Message = $"Domain could not be parsed: {submission.Url}";
+
+                    await _submissionRepository.UpdateAsync(submission, cancellationToken);
+
+                    continue;
+                }
+
+                submission.Domain = domain;
+
+                // Should check if Url exists in the queue too.
+
+                var doesExistResult = await ValidateAlreadyExistsAsync(submission, cancellationToken);
+
+                if (doesExistResult.IsFailed)
+                {
+                    return;
+                }
+
+                var isBannedDomain = ValidateDomain(submission.Url);
+
+                if (!isBannedDomain.IsSuccess)
+                {
+                    _logger.LogWarning(VERIFYING_ERROR_MESSAGE, DateTimeOffset.Now, submission.Url, isBannedDomain.Errors);
+
+                    submission.State = SubmissionState.Rejected;
+                    submission.Message = $"Banned domain: {submission.Url}";
+
+                    await _submissionRepository.UpdateAsync(submission, cancellationToken);
+
+                    return;
+                }
+
+                submission.State = SubmissionState.Validated;
                 await _submissionRepository.UpdateAsync(submission, cancellationToken);
 
-                return;
+                _logger.LogInformation("`{url}` was successfully validated", submission.Url);
             }
-
-            submission.Domain = domain;
-
-            // Should check if Url exists in the queue too.
-
-            var doesExistResult = await ValidateAlreadyExistsAsync(submission, cancellationToken);
-
-            if (doesExistResult.IsFailed)
+            catch (Exception e)
             {
-                isValid = false;
+                submission.State = SubmissionState.ValidationError;
+                submission.Message = $"Validation error: {e.Message}";
 
-                return;
-            }
-
-            var isBannedDomain = ValidateDomain(submission.Url);
-
-            if (!isBannedDomain.IsSuccess)
-            {
-                isValid = false;
-                _logger.LogWarning(VERIFYING_ERROR_MESSAGE, DateTimeOffset.Now, submission.Url, isBannedDomain.Errors);
-
-                submission.State = SubmissionState.Banned;
                 await _submissionRepository.UpdateAsync(submission, cancellationToken);
 
-                return;
+                _logger.LogError(e, "Error validating submission: {SubmissionId}", submission.Id);
+
+                // Dead letter?
             }
-
-            submission.State = SubmissionState.Validated;
-            await _submissionRepository.UpdateAsync(submission, cancellationToken);
-
-            _logger.LogInformation("`{url}` was successfully validated", submission.Url);
-        }
-        catch (Exception e)
-        {
-            submission.State = SubmissionState.ValidationError;
-            _logger.LogError(e, "Error processing submission: {SubmissionId}", submission.Id);
-
-            // Dead letter?
         }
     }
 
@@ -189,11 +194,12 @@ public class Worker : BackgroundService
     /// Check to see if the host of the url is of a banned domain.
     /// </summary>
     /// <param name="domain"></param>
-    /// <param name="cancellationToken"></param>
     /// <returns></returns>
     private Result ValidateDomain(string domain)
     {
-        var bannedHosts = new string[]
+        // Just an example of a list of (partial) domains.
+        // Should add to appsettings or db.
+        var bannedHosts = new[]
         {
             "example.com",
             "test.com",
@@ -211,8 +217,6 @@ public class Worker : BackgroundService
             "apemc85.fr",
             "api.7dshfewr-0ewfivjkys.xyz",
         };
-
-
 
         if (bannedHosts.Any(x => domain.Contains(x, StringComparison.OrdinalIgnoreCase)))
             return Result.Fail($"Banned domain: {domain}");

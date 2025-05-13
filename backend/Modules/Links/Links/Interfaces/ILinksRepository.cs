@@ -1,4 +1,6 @@
-﻿using Links.Data;
+﻿using FluentResults;
+
+using Links.Data;
 
 namespace Links.Interfaces;
 
@@ -31,6 +33,8 @@ public interface ILinksRepository
         CancellationToken cancellationToken = default);
 
     Task<LinkEntity?> GetLinkByUrlAsync(string url, CancellationToken cancellationToken = default);
+
+    Task<Result> SaveAsync(LinkEntity entity, CancellationToken cancellationToken = default);
 
     #endregion
 

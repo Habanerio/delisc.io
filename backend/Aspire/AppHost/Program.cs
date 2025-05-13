@@ -15,11 +15,10 @@ var mongodb = builder
 var ollama = builder.AddOllama("ollama", 11434)
     .WithDataVolume()
     .WithLifetime(ContainerLifetime.Session)
-//    .WithOpenWebUI()
+    .WithOpenWebUI()
 
 // Uncomment if you have an Nvidia GPU and want to use it
-//.WithGPUSupport(OllamaGpuVendor.Nvidia)
-//.WithContainerRuntimeArgs("--gpus=all")
+//.WithGPUSupport()
 ;
 
 // Small models that should work on CPU (???)
@@ -82,5 +81,11 @@ builder.AddProject<Projects.TagService>("tag-service")
     .WithReference(llm)
     .WaitFor(mongodb)
     .WaitFor(llm);
+
+builder.AddProject<Projects.FinalizeService>("final-service")
+    .WithReference(mongodb)
+    .WithReference(redis)
+    .WithReference(redisOutput)
+    .WaitFor(mongodb);
 
 builder.Build().Run();

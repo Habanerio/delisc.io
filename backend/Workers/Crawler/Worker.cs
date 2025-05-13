@@ -18,7 +18,7 @@ public class Worker : BackgroundService
     private readonly ISubmissionsRepository _submissionRepository;
 
     private const string CRAWL_ERROR_HTTP_CLIENT =
-        "{time}: Harvesting Error for: {url} {newLine}Message: {message}";
+        "{time}: Crawling Error for: {url} {newLine}Message: {message}";
 
     public Worker(
         HttpClient httpClient,
@@ -35,58 +35,65 @@ public class Worker : BackgroundService
             throw new ArgumentNullException(nameof(submissionRepository));
     }
 
-    protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+    protected override async Task ExecuteAsync(CancellationToken cancellationToken)
     {
-        while (!stoppingToken.IsCancellationRequested)
+        while (!cancellationToken.IsCancellationRequested)
         {
             try
             {
-                var rslt = await _submissionRepository.GetAsync(
-                    SubmissionState.Validated, cancellationToken: stoppingToken);
+                var rslts = await _submissionRepository.GetByStateAsync(
+                    SubmissionState.Validated, cancellationToken: cancellationToken);
 
-                if (!rslt.IsSuccess)
+                if (!rslts.IsSuccess)
                 {
-                    _logger.LogError("Crawling - {time}: {errors}", DateTimeOffset.Now, rslt.Errors);
+                    _logger.LogError("Crawling - {time}: {errors}", DateTimeOffset.Now, rslts.Errors);
                 }
-                else if (rslt.ValueOrDefault is null)
+                else if (!rslts.ValueOrDefault.Any())
                 {
                     _logger.LogInformation("Crawling - {time}: No new submissions", DateTimeOffset.Now);
                 }
                 else
                 {
-                    await ProcessMessageAsync(rslt.ValueOrDefault, stoppingToken);
+                    await ProcessMessagesAsync(rslts.ValueOrDefault, cancellationToken);
                 }
             }
             catch (Exception e)
             {
                 // Log the error
-                _logger.LogError(e, "Error processing message.");
+                _logger.LogError(e, "Error while attempting to retrieve submissions to crawl.");
 
                 // Dead letter?
             }
 
-            await Task.Delay(TimeSpan.FromSeconds(_pollingIntervalSeconds), stoppingToken);
+            await Task.Delay(_pollingIntervalSeconds, cancellationToken);
         }
     }
 
-    private async Task ProcessMessageAsync(SubmissionEntity submission, CancellationToken cancellationToken)
+    private async Task ProcessMessagesAsync(IEnumerable<SubmissionEntity> submissions, CancellationToken cancellationToken)
     {
-        try
+        foreach (var submission in submissions)
         {
-            _logger.LogInformation("Crawling - {time}: Processing `{url}`",
-                 DateTimeOffset.Now, submission.Url);
-
             submission.State = SubmissionState.Crawling; // Update status in DB
             await _submissionRepository.UpdateAsync(submission, cancellationToken);
 
-            var meta = await FetchMetaAsync(submission, cancellationToken);
-        }
-        catch (Exception e)
-        {
-            submission.State = SubmissionState.CrawlingError;
-            _logger.LogError(e, "Error processing submission: {SubmissionId}", submission.Id);
+            _logger.LogInformation("Crawling - {time}: Processing `{url}`",
+                DateTimeOffset.Now, submission.Url);
 
-            // Dead letter?
+            try
+            {
+                var meta = await FetchMetaAsync(submission, cancellationToken);
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "Error crawling submission: {SubmissionId}", submission.Id);
+
+                submission.State = SubmissionState.ValidationError;
+                submission.Message = $"Crawling error: {e.Message}";
+
+                await _submissionRepository.UpdateAsync(submission, cancellationToken);
+
+                // Dead letter?
+            }
         }
     }
 
@@ -114,9 +121,11 @@ public class Worker : BackgroundService
                 HttpStatusCode.BadRequest;
 
             submission.State = SubmissionState.CrawlingError;
+            submission.Message = $"Crawling error: {e.Message}";
+
             await _submissionRepository.UpdateAsync(submission, cancellationToken);
 
-            return Result.Fail($"Could not harvest the link\nStatus: {statusCode}");
+            return Result.Fail($"Could not crawl the link\nStatus: {statusCode}");
         }
 
         var ogTitle = WebUtility.HtmlDecode(htmlDocument.DocumentNode

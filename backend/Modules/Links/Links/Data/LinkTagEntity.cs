@@ -18,10 +18,10 @@ public class LinkTagEntity : MongoDbDocument // MongoEntityBase, IIsSoftDeletabl
         set => _name = value.ToLowerInvariant();
     }
 
-    [BsonElement("name")]
+    [BsonElement("count")]
     public int Count { get; set; }
 
-    [BsonElement("name")]
+    [BsonElement("weight")]
     public float Weight { get; set; }
 
     public LinkTagEntity(string name, int count = 1, float weight = 0)

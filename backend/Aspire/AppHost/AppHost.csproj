@@ -29,6 +29,7 @@
     <ItemGroup>
         <ProjectReference Include="..\..\Api\Api.csproj" />
         <ProjectReference Include="..\..\Workers\Crawler\CrawlServices.csproj" />
+        <ProjectReference Include="..\..\Workers\Finalizer\FinalizeService\FinalizeService.csproj" />
         <ProjectReference Include="..\..\Workers\Tagger\TagService.csproj" />
         <ProjectReference Include="..\..\Workers\Validater\ValidateService.csproj" />
         <ProjectReference Include="..\Defaults\Defaults.csproj" />

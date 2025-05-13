@@ -25,6 +25,9 @@ public class SubmissionEntity : MongoDbDocument
     [BsonElement("link_id")]
     public Guid LinkId { get; set; } = Guid.Empty;
 
+    [BsonElement("message")]
+    public string Message { get; set; } = string.Empty;
+
     [BsonElement("meta_data")]
     public MetaData MetaData { get; set; } = new();
 

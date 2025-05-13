@@ -75,6 +75,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TagService", "backend\Worke
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AppHost", "backend\Aspire\AppHost\AppHost.csproj", "{B2E401FE-235A-4C88-8C82-E38C0C043A98}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FinalizeService", "backend\Workers\Finalizer\FinalizeService\FinalizeService.csproj", "{211624A5-9652-4090-856F-73E77E493297}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -141,6 +143,10 @@ Global
 		{B2E401FE-235A-4C88-8C82-E38C0C043A98}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B2E401FE-235A-4C88-8C82-E38C0C043A98}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B2E401FE-235A-4C88-8C82-E38C0C043A98}.Release|Any CPU.Build.0 = Release|Any CPU
+		{211624A5-9652-4090-856F-73E77E493297}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{211624A5-9652-4090-856F-73E77E493297}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{211624A5-9652-4090-856F-73E77E493297}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{211624A5-9652-4090-856F-73E77E493297}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -173,6 +179,7 @@ Global
 		{92C823C9-7CC7-546A-D5F1-15220BA05D3F} = {9B80F1BD-DAA3-4C83-B978-1A727626DF17}
 		{B7FE8D74-62A5-9550-2433-3891427ADE60} = {2AA29279-DEA5-43E4-AD30-1A2A530D111D}
 		{B2E401FE-235A-4C88-8C82-E38C0C043A98} = {2F0C99BF-FDF6-448F-8E47-A00A6D551021}
+		{211624A5-9652-4090-856F-73E77E493297} = {4B0574E3-350B-458D-B35E-601E5517D04E}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {5963DB6D-34CC-4487-B70A-A28D35748CBF}

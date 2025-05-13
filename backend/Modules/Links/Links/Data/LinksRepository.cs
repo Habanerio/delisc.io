@@ -5,6 +5,8 @@ using Ardalis.GuardClauses;
 
 using Common.Data;
 
+using FluentResults;
+
 using Links.Interfaces;
 
 using MongoDB.Bson;
@@ -187,6 +189,29 @@ public sealed class LinksRepository(IMongoDatabase mongoDb) :
     public Task<IEnumerable<LinkTagEntity>> GetRelatedTagsByDomainAsync(string domain, int count, CancellationToken cancellationToken = default)
     {
         throw new NotImplementedException();
+    }
+
+    public async Task<Result> SaveAsync(LinkEntity entity, CancellationToken cancellationToken = default)
+    {
+        if (entity.CreatedById.Equals(Guid.Empty))
+            return Result.Fail("UserId cannot be empty");
+
+        if (string.IsNullOrWhiteSpace(entity.Url))
+            return Result.Fail("Url cannot be null or whitespace");
+
+        try
+        {
+            entity.DateCreated = DateTime.UtcNow;
+            await AddDocumentAsync(entity, cancellationToken);
+        }
+        catch (Exception e)
+        {
+            // Log
+
+            return Result.Fail(e.Message);
+        }
+
+        return Result.Ok();
     }
 
     #endregion

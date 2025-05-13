@@ -13,9 +13,10 @@ public interface ISubmissionsRepository
     /// Attempts to get the first submission that is in the specified state.
     /// </summary>
     /// <param name="state"></param>
+    /// <param name="count">The number of submissions for this state, to be returned</param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    Task<Result<SubmissionEntity?>> GetAsync(SubmissionState state, CancellationToken cancellationToken = default);
+    Task<Result<IEnumerable<SubmissionEntity>>> GetByStateAsync(SubmissionState state, int count = 25, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Saves a submission to the database.

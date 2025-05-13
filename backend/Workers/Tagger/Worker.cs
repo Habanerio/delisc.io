@@ -1,5 +1,6 @@
 using Microsoft.Extensions.AI;
 
+using Submissions.Data;
 using Submissions.Enums;
 using Submissions.Interfaces;
 
@@ -9,8 +10,9 @@ public class Worker : BackgroundService
 {
     private readonly IChatClient? _chatClient;
     private readonly ILogger<Worker> _logger;
-    private readonly int _pollingIntervalSeconds = 5;
     private readonly ISubmissionsRepository _submissionsRepository;
+
+    private readonly int _pollingIntervalSeconds = 15;
 
     public Worker(
         IChatClient chatClient,
@@ -30,37 +32,47 @@ public class Worker : BackgroundService
     {
         while (!cancellationToken.IsCancellationRequested)
         {
+            var rslts = await _submissionsRepository.GetByStateAsync(
+                SubmissionState.Crawled, cancellationToken: cancellationToken);
+
+            if (!rslts.IsSuccess)
+            {
+                _logger.LogError("Tagging - {time}: {errors}", DateTimeOffset.Now, rslts.Errors);
+            }
+            else if (!rslts.ValueOrDefault.Any())
+            {
+                _logger.LogInformation("Tagging - {time}: No submissions to tag", DateTimeOffset.Now);
+            }
+            else
+            {
+                await ProcessMessagesAsync(rslts.ValueOrDefault, cancellationToken);
+            }
+
+            await Task.Delay(_pollingIntervalSeconds, cancellationToken);
+        }
+    }
+
+    private async Task ProcessMessagesAsync(IEnumerable<SubmissionEntity> submissions, CancellationToken cancellationToken)
+    {
+        foreach (var submission in submissions)
+        {
+            submission.State = SubmissionState.Tagging;
+            await _submissionsRepository.UpdateAsync(submission, cancellationToken);
+
+            _logger.LogInformation("Tagging - {time}: Processing `{url}`",
+                DateTimeOffset.Now, submission.Url);
+
             try
             {
-                var rslt = await _submissionsRepository.GetAsync(
-                    SubmissionState.Crawled, cancellationToken);
-
-                if (!rslt.IsSuccess)
-                {
-                    _logger.LogError("Tagging - {time}: {errors}", DateTimeOffset.Now, rslt.Errors);
-
-                    return;
-                }
-
-                if (rslt.ValueOrDefault is null)
-                {
-                    _logger.LogInformation("Tagging - {time}: No new submissions", DateTimeOffset.Now);
-
-                    return;
-                }
-
-                var submission = rslt.ValueOrDefault;
-
                 if (_chatClient is null)
                 {
                     _logger.LogInformation("Ollama is null");
 
                     // WIll mark this as tagged, so that it may continue its journey to submission
                     submission.State = SubmissionState.Tagged;
+                    submission.Message = "Ollama was down";
 
-                    await _submissionsRepository.UpdateAsync(submission, cancellationToken);
-
-                    return;
+                    continue;
                 }
 
                 _logger.LogInformation("Ollama is alive");
@@ -116,18 +128,20 @@ public class Worker : BackgroundService
                 }
 
                 submission.State = SubmissionState.Tagged;
-
-                await _submissionsRepository.UpdateAsync(submission, cancellationToken);
             }
             catch (Exception e)
             {
                 // Log the error
                 _logger.LogError(e, "Error processing message.");
 
+                submission.Message = $"Tagging error: {e.Message}";
                 // Dead letter?
             }
-
-            await Task.Delay(_pollingIntervalSeconds, cancellationToken);
+            finally
+            {
+                // Ensure the submission is updated in the database even if an error occurs
+                await _submissionsRepository.UpdateAsync(submission, cancellationToken);
+            }
         }
     }
 }

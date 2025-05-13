@@ -13,16 +13,23 @@ public class SubmissionsRepository(IMongoDatabase mongoDb) :
     MongoDbRepository<SubmissionEntity>(new SubmissionsDbContext<SubmissionEntity>(mongoDb)),
     ISubmissionsRepository
 {
-    public Task<Result<string>> GetAsync(Guid userId, CancellationToken cancellationToken = default)
+    public Task<Result<string>> GetAsync(Guid submissionId, CancellationToken cancellationToken = default)
     {
         throw new NotImplementedException();
     }
 
-    public async Task<Result<SubmissionEntity?>> GetAsync(SubmissionState state, CancellationToken cancellationToken = default)
+    /// <summary>
+    /// Gets a collection of submissions that are in a specified state.
+    /// </summary>
+    /// <param name="state">The state of the submission, for which to filter by</param>
+    /// <param name="count"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    public async Task<Result<IEnumerable<SubmissionEntity>>> GetByStateAsync(SubmissionState state, int count = 25, CancellationToken cancellationToken = default)
     {
-        var rslt = await FirstOrDefaultDocumentAsync(d => d.State.Equals(SubmissionState.New), cancellationToken);
+        var rslts = await FindDocumentsAsync(d => d.State.Equals(state), cancellationToken);
 
-        return rslt;
+        return Result.Ok(rslts ?? []);
     }
 
     public async Task<Result> SaveAsync(SubmissionEntity entity, CancellationToken cancellationToken = default)

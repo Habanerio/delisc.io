@@ -1,1 +1,1 @@
-# Deliscio - A del.icio.us-ly inspired web app
+# Deliscio - A del.icio.us-ly 'aspired' web app

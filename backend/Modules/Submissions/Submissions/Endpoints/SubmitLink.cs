@@ -16,7 +16,7 @@ public class SubmitLinkEndpoint : IEndpoint
 {
     public void MapEndpoint(IEndpointRouteBuilder app)
     {
-        app.MapPost("submit", async (
+        app.MapPost("api/v1/submit", async (
             [FromBody] SubmitLinkRequest request,
             [FromServices] ISender mediatr,
             CancellationToken cancellationToken = default) =>

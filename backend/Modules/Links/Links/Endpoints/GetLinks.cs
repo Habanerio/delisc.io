@@ -26,7 +26,7 @@ internal sealed class GetLinksEndpoint : IEndpoint
 
     public void MapEndpoint(IEndpointRouteBuilder app)
     {
-        app.MapGet("links",
+        app.MapGet("api/v1/links",
                 async (
                     [FromQuery] string? term,
                     [FromQuery] string? domain,

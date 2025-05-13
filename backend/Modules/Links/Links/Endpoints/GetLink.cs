@@ -21,7 +21,7 @@ internal sealed class GetLinkEndpoint : IEndpoint
 
     public void MapEndpoint(IEndpointRouteBuilder app)
     {
-        app.MapGet("links/{linkId}",
+        app.MapGet("api/v1/links/{linkId}",
                 async (
                     [FromRoute] string linkId,
                     [FromServices] ISender mediatr,
@@ -43,7 +43,7 @@ internal sealed class GetLinkEndpoint : IEndpoint
             .ProducesProblem((int)HttpStatusCode.BadRequest)
             .ProducesProblem((int)HttpStatusCode.NotFound)
             .WithDisplayName("GetLinkAsync")
-            .WithSummary("Gets single link item")
+            .WithSummary("Gets a single link item")
             .WithTags("Links");
     }
 }

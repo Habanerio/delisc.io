@@ -12,11 +12,14 @@ using Submissions.Models.Requests;
 
 namespace Submissions.Endpoints;
 
+/// <summary>
+/// Responsible for handling multiple submissions.
+/// </summary>
 public class SubmitLinksEndpoint : IEndpoint
 {
     public void MapEndpoint(IEndpointRouteBuilder app)
     {
-        app.MapPost("submits", async (
+        app.MapPost("api/v1/submits", async (
             [FromBody] SubmitLinksRequest request,
             [FromServices] ISender mediatr,
             CancellationToken cancellationToken = default) =>

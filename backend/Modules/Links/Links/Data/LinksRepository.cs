@@ -1,5 +1,4 @@
-﻿using System;
-using System.Linq.Expressions;
+﻿using System.Linq.Expressions;
 
 using Ardalis.GuardClauses;
 
@@ -23,7 +22,8 @@ public sealed class LinksRepository(IMongoDatabase mongoDb) :
 {
     #region - Links
 
-    public async Task<(IEnumerable<LinkEntity> Results, int TotalPages, int TotalCount)> FindAsync(
+    public async Task<(IEnumerable<LinkEntity> Results, int TotalPages, int TotalCount)>
+        FindAsync(
         string term, string tags, string domain,
         int pageNo, int pageSize, int skip = 0,
         bool? isActive = default, bool? isFlagged = default, bool? isDeleted = false,
@@ -42,7 +42,8 @@ public sealed class LinksRepository(IMongoDatabase mongoDb) :
         return rslts;
     }
 
-    public async Task<(IEnumerable<LinkEntity> Results, int TotalPages, int TotalCount)> FindAsync(
+    public async Task<(IEnumerable<LinkEntity> Results, int TotalPages, int TotalCount)>
+        FindAsync(
         string term, string[] tags, string domain,
         int pageNo, int pageSize, int skip = 0,
         bool? isActive = default, bool? isFlagged = default, bool? isDeleted = false,
@@ -114,36 +115,37 @@ public sealed class LinksRepository(IMongoDatabase mongoDb) :
 
     /// <summary>
     /// Gets a collection of tags that are related to the tags that were specified.
-    /// The tags that are returned are the same tags that are in all of the Links that would be found with the GetLinksByTagsAsync(), but without including the paging.
+    /// The tags that are returned are the same tags that are in all the Links that would be found with the GetLinksByTagsAsync(), but without including the paging.
     /// </summary>
     /// <param name="tags">The tags to use to get all other related tags</param>
     /// <param name="count">The max number of tags to return</param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    public async Task<IEnumerable<LinkTagEntity>> GetRelatedTagsAsync(string[] tags, int count, CancellationToken cancellationToken = default)
+    public async Task<IEnumerable<LinkTagEntity>> GetTagsAsync(string[] tags, int count, CancellationToken cancellationToken = default)
     {
         if (count < 1)
             return Enumerable.Empty<LinkTagEntity>();
 
-        // Because we're going to exclude the incoming tags from the results
-        var tmpCount = count + tags.Length;
-
-        var newTags = tags.Where(t => !string.IsNullOrWhiteSpace(t)).Select(t => t.ToLower()).ToArray();
+        var newTags = tags
+            .Where(t => !string.IsNullOrWhiteSpace(t))
+            .Select(t => t.ToLowerInvariant())
+            .ToArray();
 
         // If tags.Length is 0, get all tags. Else, get only those that are related to the specified tags
-        BsonDocument match = newTags.Length == 0 ? new BsonDocument("$match", new BsonDocument()) :
-            new BsonDocument("$match", new BsonDocument("Tags.Name", new BsonDocument("$all", new BsonArray(tags))));
+        BsonDocument match = newTags.Length == 0
+            ? new BsonDocument("$match", new BsonDocument())
+            : new BsonDocument("$match", new BsonDocument("tags.name", new BsonDocument("$all", new BsonArray(newTags))));
 
         var pipeline = new BsonDocument[]
         {
             match,
             // Unwind the tags array to create a separate document for each tag
-            new BsonDocument("$unwind", "$Tags"),
+            new BsonDocument("$unwind", "$tags"),
             // Group the tags and count the occurrences of each tag
             new BsonDocument("$group",
                 new BsonDocument
                 {
-                    { "_id", "$Tags.Name" },
+                    { "_id", "$tags.name" },
                     { "count", new BsonDocument("$sum", 1) }
                 }
             ),
@@ -164,17 +166,18 @@ public sealed class LinksRepository(IMongoDatabase mongoDb) :
         var relatedTags = cursor?
             .ToList(cancellationToken)
             .OrderByDescending(t => t["Count"].AsInt32)
-            //TODO: Filter out here. Wasn't able to get it to work
-            //.Where(x => !tags.Contains(x["Name"].AsString))
-            .Take(tmpCount)
-            .Select(x => new LinkTagEntity(x["TagName"].AsString, x["Count"].AsInt32)).ToArray()
-                          ?? Array.Empty<LinkTagEntity>();
+            .Select(x => new LinkTagEntity(x["TagName"].AsString, x["Count"].AsInt32))
+            .ToArray()
+        ?? [];
 
         if (!relatedTags.Any())
-            return Enumerable.Empty<LinkTagEntity>();
+            return [];
 
         // Strip out the tags we used to get the related tags (we only want related)
-        relatedTags = relatedTags.Where(x => !tags.Contains(x.Name)).Take(count).ToArray();
+        relatedTags = relatedTags
+            .Where(x => !tags.Contains(x.Name))
+            .Take(count)
+            .ToArray();
 
         var totalCounts = relatedTags.Sum(x => x.Count);
 

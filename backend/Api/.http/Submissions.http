@@ -100,7 +100,14 @@ Content-Type: application/json
   "https://philmaffetone.com/recipes/",
   "http://www.eatingwell.com/recipes/22399/mealtimes/dinner/for-two/romantic-dinners-for-two/slideshow/romantic-dinners-for-two/?recipeId=253076",
   "https://www.thestar.com/life/food_wine/recipes/2018/05/10/these-sweet-and-spicy-bbq-wings-were-made-to-try.html",
-  "http://eatdrinkpaleo.com.au/mexican-tuna-steak-recipe-with-sweet-red-peppers-avocado/"
+  "http://eatdrinkpaleo.com.au/mexican-tuna-steak-recipe-with-sweet-red-peppers-avocado/",
+  "https://devblogs.microsoft.com/semantic-kernel/guest-blog-building-multi-agent-systems-with-multi-models-in-semantic-kernel-part-1/",
+  "https://studio.ottomator.ai/",
+  "https://medium.com/@kenzic/getting-started-build-a-model-context-protocol-server-9d0362363435",
+  "https://medium.com/@kenzic/getting-started-model-context-protocol-e0a80dddff80",
+  "https://decapcms.org/docs/intro/",
+  "https://microsoft.github.io/autogen/dotnet/dev/core/index.html",
+  "https://techcommunity.microsoft.com/blog/educatordeveloperblog/building-ai-agent-applications-series---using-autogen-to-build-your-ai-agents/4052280"
   ]
 }
 

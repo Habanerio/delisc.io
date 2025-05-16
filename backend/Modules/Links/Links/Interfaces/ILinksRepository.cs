@@ -49,7 +49,7 @@ public interface ILinksRepository
     /// <returns>Task</returns>
     Task AddTagAsync(Guid linkId, string tag, CancellationToken cancellationToken);
 
-    Task<IEnumerable<LinkTagEntity>> GetRelatedTagsAsync(
+    Task<IEnumerable<LinkTagEntity>> GetTagsAsync(
         string[] tags, int count, CancellationToken cancellationToken = default);
 
     Task<IEnumerable<LinkTagEntity>> GetRelatedTagsByDomainAsync(

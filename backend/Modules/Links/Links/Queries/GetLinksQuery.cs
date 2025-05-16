@@ -1,4 +1,6 @@
-﻿using FluentResults;
+﻿using Common.Models;
+
+using FluentResults;
 
 using Links.Interfaces;
 using Links.Models;
@@ -11,7 +13,7 @@ namespace Links.Queries;
 /// <summary>
 /// Responsible for attempting to retrieve a collection of links that match the search term, domain, and/or tags. 
 /// </summary>
-public sealed record GetLinksQuery : IRequest<Result<IEnumerable<LinkItem>>>
+public sealed record GetLinksQuery : IRequest<Result<PagedResults<LinkItem>>>
 {
     public int PageNo { get; init; }
 
@@ -35,16 +37,17 @@ public sealed record GetLinksQuery : IRequest<Result<IEnumerable<LinkItem>>>
 }
 
 public class GetLinksQueryHandler(ILinksRepository linksRepository) :
-    IRequestHandler<GetLinksQuery, Result<IEnumerable<LinkItem>>>
+    IRequestHandler<GetLinksQuery, Result<PagedResults<LinkItem>>>
 {
     private readonly ILinksRepository _linksRepository = linksRepository ??
         throw new ArgumentNullException(nameof(linksRepository));
 
-    public async Task<Result<IEnumerable<LinkItem>>> Handle(
+    public async Task<Result<PagedResults<LinkItem>>> Handle(
         GetLinksQuery query,
         CancellationToken cancellationToken)
     {
-        var (results, totalPages, totalCount) = await _linksRepository.FindAsync(
+        var (rslts, totalPages, totalCount) =
+            await _linksRepository.FindAsync(
             term: query.SearchTerm,
             tags: query.Tags,
             domain: string.Empty,
@@ -52,9 +55,14 @@ public class GetLinksQueryHandler(ILinksRepository linksRepository) :
             pageSize: query.PageSize,
             cancellationToken: cancellationToken);
 
-        var linkItems = Mapper.Map<LinkItem>(results);
+        var items = Mapper.Map<LinkItem>(rslts);
 
-        return Result.Ok(linkItems);
+        var pageOf = new PagedResults<LinkItem>(
+            items,
+            query.PageNo,
+            query.PageSize, totalCount);
+
+        return Result.Ok(pageOf);
     }
 }
 

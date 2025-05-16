@@ -1,4 +1,7 @@
-﻿using Common.Endpoints;
+﻿using System.Net;
+
+using Common.Endpoints;
+using Common.Endpoints.Extensions;
 
 using MediatR;
 
@@ -30,10 +33,12 @@ public class SubmitLinkEndpoint : IEndpoint
             var cmd = new SubmitLinkCommand(request.UserId, request.Url, request.Tags ?? []);
             var rslt = await mediatr.Send(cmd, cancellationToken);
 
-            if (rslt.IsFailed)
-                return Results.BadRequest(rslt.Errors.First().Message);
-
-            return Results.Ok(rslt.Value);
-        });
+            return rslt.Match(Results.Ok, Results.BadRequest);
+        })
+        .Produces<SubmitLinkResponse>()
+        .ProducesProblem((int)HttpStatusCode.BadRequest)
+        .WithDescription("Submits a single url")
+        .WithDisplayName("Submit")
+        .WithTags("Submits");
     }
 }

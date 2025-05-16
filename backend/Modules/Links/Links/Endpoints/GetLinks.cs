@@ -28,27 +28,23 @@ internal sealed class GetLinksEndpoint : IEndpoint
     {
         app.MapGet("api/v1/links",
                 async (
-                    [FromQuery] string? term,
-                    [FromQuery] string? domain,
-                    [FromQuery] string? tags,
-                    [FromQuery] int? pageNo,
-                    [FromQuery] int? pageSize,
                     [FromServices] ISender mediatr,
+                    [FromQuery] string term = "",
+                    [FromQuery] string domain = "",
+                    [FromQuery] string tags = "",
+                    [FromQuery] int pageNo = 1,
+                    [FromQuery] int pageSize = 25,
                     CancellationToken cancellationToken = default) =>
                 {
-                    var newPageNo = pageNo ?? DEFAULT_PAGE_NO;
-
-                    if (newPageNo < 1)
+                    if (pageNo < 1)
                         return Results.BadRequest(PAGE_NO_CANNOT_BE_LESS_THAN_ONE);
 
-                    var newPageSize = pageSize ?? DEFAULT_PAGE_SIZE;
-
-                    if (newPageSize < 1)
+                    if (pageSize < 1)
                         return Results.BadRequest(PAGE_SIZE_CANNOT_BE_LESS_THAN_ONE);
 
                     var newTags = tags?.Split(',') ?? [];
 
-                    var query = new GetLinksQuery(newPageNo, newPageSize, term, domain, newTags);
+                    var query = new GetLinksQuery(pageNo, pageSize, term, domain, newTags);
                     var rslts = await mediatr.Send(query, cancellationToken);
 
                     // For a `search`, should an empty result set be returned or a 404?
@@ -56,8 +52,8 @@ internal sealed class GetLinksEndpoint : IEndpoint
                     return rslts.Match(Results.Ok, Results.BadRequest);
                 })
             .Produces<PagedResults<LinkItem>>()
-            .ProducesProblem((int)HttpStatusCode.OK)
             .ProducesProblem((int)HttpStatusCode.BadRequest)
-            .WithDisplayName("Get Links");
+            .WithDisplayName("Get Links")
+            .WithTags("Links");
     }
 }

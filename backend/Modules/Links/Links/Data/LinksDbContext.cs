@@ -11,7 +11,7 @@ public class LinksDbContext<TDocument> : MongoDbContext<TDocument> where TDocume
     public LinksDbContext(IMongoDatabase mongoDb) : base(mongoDb)
     {
         //TODO: Come back and uncomment
-        Configure();
+        //Configure();
     }
 
     protected void Configure()

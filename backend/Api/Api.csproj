@@ -30,6 +30,7 @@
     </ItemGroup>
 
     <ItemGroup>
+        <None Include=".http\Links.http" />
         <None Include=".http\Submissions.http" />
     </ItemGroup>
 

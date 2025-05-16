@@ -42,7 +42,7 @@ internal sealed class GetLinkEndpoint : IEndpoint
             .Produces<Link?>()
             .ProducesProblem((int)HttpStatusCode.BadRequest)
             .ProducesProblem((int)HttpStatusCode.NotFound)
-            .WithDisplayName("GetLinkAsync")
+            .WithDisplayName("Get Link")
             .WithSummary("Gets a single link item")
             .WithTags("Links");
     }

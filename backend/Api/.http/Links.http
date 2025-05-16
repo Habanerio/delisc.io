@@ -1,0 +1,9 @@
+﻿GET https://localhost:7088/api/v1/links
+
+###
+
+GET https://localhost:7088/api/v1/links/{linkId}
+
+###
+
+GET https://localhost:7088/api/v1/links/tags?count=10

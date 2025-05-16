@@ -1,0 +1,497 @@
+{
+   "openapi": "3.0.1",
+   "info": {
+      "title": "Api | v1",
+      "version": "1.0.0"
+   },
+   "servers": [
+      {
+         "url": "https://localhost:7088/"
+      }
+   ],
+   "paths": {
+      "/api/v1/links/{linkId}": {
+         "get": {
+            "tags": ["Links"],
+            "summary": "Gets a single link item",
+            "parameters": [
+               {
+                  "name": "linkId",
+                  "in": "path",
+                  "required": true,
+                  "schema": {
+                     "type": "string"
+                  }
+               }
+            ],
+            "responses": {
+               "200": {
+                  "description": "OK",
+                  "content": {
+                     "application/json": {
+                        "schema": {
+                           "$ref": "#/components/schemas/Link"
+                        }
+                     }
+                  }
+               },
+               "400": {
+                  "description": "Bad Request",
+                  "content": {
+                     "application/problem+json": {
+                        "schema": {
+                           "$ref": "#/components/schemas/ProblemDetails"
+                        }
+                     }
+                  }
+               },
+               "404": {
+                  "description": "Not Found",
+                  "content": {
+                     "application/problem+json": {
+                        "schema": {
+                           "$ref": "#/components/schemas/ProblemDetails"
+                        }
+                     }
+                  }
+               }
+            }
+         }
+      },
+      "/api/v1/links": {
+         "get": {
+            "tags": ["Links"],
+            "parameters": [
+               {
+                  "name": "term",
+                  "in": "query",
+                  "schema": {
+                     "type": "string",
+                     "default": ""
+                  }
+               },
+               {
+                  "name": "domain",
+                  "in": "query",
+                  "schema": {
+                     "type": "string",
+                     "default": ""
+                  }
+               },
+               {
+                  "name": "tags",
+                  "in": "query",
+                  "schema": {
+                     "type": "string",
+                     "default": ""
+                  }
+               },
+               {
+                  "name": "pageNo",
+                  "in": "query",
+                  "schema": {
+                     "type": "integer",
+                     "format": "int32",
+                     "default": 1
+                  }
+               },
+               {
+                  "name": "pageSize",
+                  "in": "query",
+                  "schema": {
+                     "type": "integer",
+                     "format": "int32",
+                     "default": 25
+                  }
+               }
+            ],
+            "responses": {
+               "200": {
+                  "description": "OK",
+                  "content": {
+                     "application/json": {
+                        "schema": {
+                           "$ref": "#/components/schemas/PagedResultsOfLinkItem"
+                        }
+                     }
+                  }
+               },
+               "400": {
+                  "description": "Bad Request",
+                  "content": {
+                     "application/problem+json": {
+                        "schema": {
+                           "$ref": "#/components/schemas/ProblemDetails"
+                        }
+                     }
+                  }
+               }
+            }
+         }
+      },
+      "/api/v1/links/tags": {
+         "get": {
+            "tags": ["Links"],
+            "parameters": [
+               {
+                  "name": "tags",
+                  "in": "query",
+                  "schema": {
+                     "type": "string",
+                     "default": ""
+                  }
+               },
+               {
+                  "name": "count",
+                  "in": "query",
+                  "schema": {
+                     "type": "integer",
+                     "format": "int32",
+                     "default": 50
+                  }
+               }
+            ],
+            "responses": {
+               "200": {
+                  "description": "OK",
+                  "content": {
+                     "application/json": {
+                        "schema": {
+                           "type": "array",
+                           "items": {
+                              "$ref": "#/components/schemas/LinkTag"
+                           }
+                        }
+                     }
+                  }
+               },
+               "400": {
+                  "description": "Bad Request",
+                  "content": {
+                     "application/problem+json": {
+                        "schema": {
+                           "$ref": "#/components/schemas/ProblemDetails"
+                        }
+                     }
+                  }
+               }
+            }
+         }
+      },
+      "/api/v1/submit": {
+         "post": {
+            "tags": ["Submits"],
+            "description": "Submits a single url",
+            "requestBody": {
+               "content": {
+                  "application/json": {
+                     "schema": {
+                        "$ref": "#/components/schemas/SubmitLinkRequest"
+                     }
+                  }
+               },
+               "required": true
+            },
+            "responses": {
+               "200": {
+                  "description": "OK",
+                  "content": {
+                     "application/json": {
+                        "schema": {
+                           "$ref": "#/components/schemas/SubmitLinkResponse"
+                        }
+                     }
+                  }
+               },
+               "400": {
+                  "description": "Bad Request",
+                  "content": {
+                     "application/problem+json": {
+                        "schema": {
+                           "$ref": "#/components/schemas/ProblemDetails"
+                        }
+                     }
+                  }
+               }
+            }
+         }
+      },
+      "/api/v1/submits": {
+         "post": {
+            "tags": ["Submits"],
+            "description": "Submits one or more urls",
+            "requestBody": {
+               "content": {
+                  "application/json": {
+                     "schema": {
+                        "$ref": "#/components/schemas/SubmitLinksRequest"
+                     }
+                  }
+               },
+               "required": true
+            },
+            "responses": {
+               "200": {
+                  "description": "OK",
+                  "content": {
+                     "application/json": {
+                        "schema": {
+                           "$ref": "#/components/schemas/SubmitLinkResponse"
+                        }
+                     }
+                  }
+               },
+               "400": {
+                  "description": "Bad Request",
+                  "content": {
+                     "application/problem+json": {
+                        "schema": {
+                           "$ref": "#/components/schemas/ProblemDetails"
+                        }
+                     }
+                  }
+               }
+            }
+         }
+      }
+   },
+   "components": {
+      "schemas": {
+         "Link": {
+            "type": "object",
+            "properties": {
+               "id": {
+                  "type": "string"
+               },
+               "description": {
+                  "type": "string"
+               },
+               "domain": {
+                  "type": "string"
+               },
+               "imageUrl": {
+                  "type": "string"
+               },
+               "isActive": {
+                  "type": "boolean"
+               },
+               "isFlagged": {
+                  "type": "boolean"
+               },
+               "keywords": {
+                  "type": "array",
+                  "items": {
+                     "type": "string"
+                  }
+               },
+               "likesCount": {
+                  "type": "integer",
+                  "format": "int32"
+               },
+               "savesCount": {
+                  "type": "integer",
+                  "format": "int32"
+               },
+               "tags": {
+                  "type": "array",
+                  "items": {
+                     "$ref": "#/components/schemas/LinkTag"
+                  }
+               },
+               "title": {
+                  "type": "string"
+               },
+               "url": {
+                  "type": "string"
+               },
+               "submittedById": {
+                  "type": "string"
+               },
+               "dateCreated": {
+                  "type": "string",
+                  "format": "date-time"
+               },
+               "dateUpdated": {
+                  "type": "string",
+                  "format": "date-time"
+               }
+            }
+         },
+         "LinkItem": {
+            "type": "object",
+            "properties": {
+               "id": {
+                  "type": "string"
+               },
+               "description": {
+                  "type": "string"
+               },
+               "imageUrl": {
+                  "type": "string"
+               },
+               "likes": {
+                  "type": "integer",
+                  "format": "int32"
+               },
+               "saves": {
+                  "type": "integer",
+                  "format": "int32"
+               },
+               "tags": {
+                  "type": "array",
+                  "items": {
+                     "$ref": "#/components/schemas/LinkTag"
+                  }
+               },
+               "title": {
+                  "type": "string"
+               },
+               "url": {
+                  "type": "string"
+               },
+               "dateCreated": {
+                  "type": "string",
+                  "format": "date-time"
+               },
+               "dateUpdated": {
+                  "type": "string",
+                  "format": "date-time"
+               }
+            }
+         },
+         "LinkTag": {
+            "type": "object",
+            "properties": {
+               "name": {
+                  "type": "string"
+               },
+               "count": {
+                  "type": "integer",
+                  "format": "int32"
+               },
+               "weight": {
+                  "type": "number",
+                  "format": "float"
+               }
+            }
+         },
+         "PagedResultsOfLinkItem": {
+            "type": "object",
+            "properties": {
+               "results": {
+                  "type": "array",
+                  "items": {
+                     "$ref": "#/components/schemas/LinkItem"
+                  }
+               },
+               "pageNumber": {
+                  "type": "integer",
+                  "format": "int32"
+               },
+               "pageSize": {
+                  "type": "integer",
+                  "format": "int32"
+               },
+               "totalResults": {
+                  "type": "integer",
+                  "format": "int32"
+               },
+               "totalPages": {
+                  "type": "integer",
+                  "format": "int32"
+               },
+               "isError": {
+                  "type": "boolean"
+               },
+               "isSuccess": {
+                  "type": "boolean"
+               },
+               "message": {
+                  "type": "string"
+               }
+            }
+         },
+         "ProblemDetails": {
+            "type": "object",
+            "properties": {
+               "type": {
+                  "type": "string",
+                  "nullable": true
+               },
+               "title": {
+                  "type": "string",
+                  "nullable": true
+               },
+               "status": {
+                  "type": "integer",
+                  "format": "int32",
+                  "nullable": true
+               },
+               "detail": {
+                  "type": "string",
+                  "nullable": true
+               },
+               "instance": {
+                  "type": "string",
+                  "nullable": true
+               }
+            }
+         },
+         "SubmitLinkRequest": {
+            "required": ["userId", "url"],
+            "type": "object",
+            "properties": {
+               "userId": {
+                  "type": "string"
+               },
+               "url": {
+                  "type": "string"
+               },
+               "tags": {
+                  "type": "array",
+                  "items": {
+                     "type": "string"
+                  },
+                  "default": null,
+                  "nullable": true
+               }
+            }
+         },
+         "SubmitLinkResponse": {
+            "required": ["submissionId", "url"],
+            "type": "object",
+            "properties": {
+               "submissionId": {
+                  "type": "string"
+               },
+               "url": {
+                  "type": "string"
+               }
+            }
+         },
+         "SubmitLinksRequest": {
+            "required": ["userId", "urls"],
+            "type": "object",
+            "properties": {
+               "userId": {
+                  "type": "string"
+               },
+               "urls": {
+                  "type": "array",
+                  "items": {
+                     "type": "string"
+                  }
+               }
+            }
+         }
+      }
+   },
+   "tags": [
+      {
+         "name": "Links"
+      },
+      {
+         "name": "Submits"
+      }
+   ]
+}

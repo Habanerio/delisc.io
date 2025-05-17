@@ -59,7 +59,7 @@ var redisOutput = builder
     .WithRedisCommander()
     .WithRedisInsight();
 
-builder.AddProject<Projects.Api>("api")
+var api = builder.AddProject<Projects.Api>("api")
     .WithReference(mongodb)
     .WithReference(redis)
     .WithReference(redisOutput)
@@ -87,5 +87,15 @@ builder.AddProject<Projects.FinalizeService>("final-service")
     .WithReference(redis)
     .WithReference(redisOutput)
     .WaitFor(mongodb);
+
+/*
+builder.AddNpmApp("react", "../../../frontend/")
+    .WithReference(api)
+    .WaitFor(api)
+    .WithEnvironment("BROWSER", "none") // Disable opening browser on npm start
+    .WithHttpEndpoint(env: "PORT")
+    .WithExternalHttpEndpoints()
+    .PublishAsDockerFile();
+*/
 
 builder.Build().Run();

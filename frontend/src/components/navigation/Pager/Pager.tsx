@@ -1,6 +1,16 @@
 'use client';
-import Link from 'next/link';
-import React from 'react';
+import * as React from 'react';
+
+import {
+   Pagination,
+   PaginationContent,
+   PaginationEllipsis,
+   PaginationItem,
+   PaginationLink,
+   PaginationNext,
+   PaginationPrevious,
+} from '@/components/ui/pagination';
+
 import { usePathname } from 'next/navigation';
 import { useSearchParams } from 'next/navigation';
 
@@ -35,105 +45,91 @@ export function Pager(props: Props) {
       return null;
    }
 
-   const firstPage =
-      props.currentPage > 1 ? (
-         <li className='first' style={{}}>
-            <Link
-               className='page-link'
-               href={query.size > 0 ? `${pathName}?${query.toString}` : `/`}
-               tabIndex={-1}
-               aria-disabled='false'
-               style={{ borderRadius: '1rem' }}>
+   /**
+    * Gets the Link for the first page.
+    * IF, the current page is equal to 1, then the link is disabled
+    */
+   const getFirstPage = () => {
+      const currentPage = props.currentPage ?? 1;
+
+      const href =
+         currentPage > 1 ? (query.size > 0 ? `${pathName}?${query.toString}` : `${pathName}?`) : '';
+
+      return (
+         <PaginationItem className='first'>
+            <PaginationLink href={href} isActive={href !== ''} aria-label='Go to the first page'>
                First
-            </Link>
-         </li>
-      ) : (
-         <li className='first disabled' style={{}}>
-            <Link
-               className='page-link'
-               href={`/`}
-               tabIndex={-1}
-               style={{ borderRadius: '1rem' }}
-               aria-disabled='true'>
-               First
-            </Link>
-         </li>
+            </PaginationLink>
+         </PaginationItem>
       );
+   };
 
-   const prevPage =
-      props.currentPage > 1 ? (
-         <li className='previous' style={{}}>
-            <Link
-               className='page-link'
-               href={
-                  query.size > 0
-                     ? `${pathName}?${query.toString}&page=${props.currentPage - 1}`
-                     : `${pathName}?page=${props.currentPage - 1}`
-               }
-               tabIndex={-1}
-               aria-disabled='false'
-               style={{ borderRadius: '1rem' }}>
-               Previous
-            </Link>
-         </li>
-      ) : (
-         <li className='previous disabled' style={{}}>
-            <Link
-               className='page-link'
-               href={`/`}
-               tabIndex={-1}
-               style={{ borderRadius: '1rem' }}
-               aria-disabled='true'>
-               Previous
-            </Link>
-         </li>
+   /**
+    * Gets the Link for the previous page
+    * If the current page is equal to 1, then the link is disabled
+    */
+   const getPreviousPage = () => {
+      const currentPage = props.currentPage ?? 1;
+
+      const href =
+         currentPage > 1
+            ? query.size > 0
+               ? `${pathName}?page=${currentPage - 1}&${query.toString}`
+               : `${pathName}?page=${currentPage - 1}`
+            : '';
+
+      return (
+         <PaginationItem className='previous' style={{}}>
+            <PaginationPrevious href={href} isActive={href !== ''} />
+         </PaginationItem>
       );
+   };
 
-   const nextPage =
-      props.totalPages && props.currentPage < props.totalPages ? (
-         <li className='next' style={{}}>
-            <Link
-               className='page-link'
-               href={`${pathName}?page=${props.currentPage + 1}`}
-               style={{ borderRadius: '1rem' }}
-               aria-disabled='false'>
-               Next
-            </Link>
-         </li>
-      ) : (
-         <li className='next disabled' style={{}}>
-            <Link
-               className='page-link'
-               href={`/`}
-               aria-disabled='true'
-               style={{ borderRadius: '1rem' }}>
-               Next
-            </Link>
-         </li>
+   /**
+    * Gets the Link for the next page
+    * If the current page is equal to the last page, then the link is disabled
+    */
+   const getNextPage = () => {
+      const currentPage = props.currentPage ?? 1;
+      const totalPages = props.totalPages ?? 1;
+
+      const href =
+         currentPage < totalPages
+            ? query.size > 0
+               ? `${pathName}?page=${currentPage + 1}&${query.toString}`
+               : `${pathName}?page=${currentPage + 1}`
+            : '';
+
+      return (
+         <PaginationItem className='next' style={{}}>
+            <PaginationNext href={href} isActive={href !== ''} />
+         </PaginationItem>
       );
+   };
 
-   const lastPage =
-      props.totalPages && props.currentPage < props.totalPages ? (
-         <li className='last' style={{}}>
-            <Link
-               className='page-link'
-               href={`${pathName}?page=${props.totalPages}`}
-               style={{ borderRadius: '1rem' }}
-               aria-disabled='false'>
+   /**
+    * Gets the Link for the last page.
+    * IF, the current page is equal to the last page, then the link is disabled
+    */
+   const lastPage = () => {
+      const currentPage = props.currentPage ?? 1;
+      const totalPages = props.totalPages ?? 1;
+
+      const href =
+         currentPage < totalPages
+            ? query.size > 0
+               ? `${pathName}?page=${totalPages}&${query.toString}`
+               : `${pathName}?page=${totalPages}`
+            : '';
+
+      return (
+         <PaginationItem className='last' style={{}}>
+            <PaginationLink href={href} isActive={href !== ''} aria-label='Go to the last page'>
                Last
-            </Link>
-         </li>
-      ) : (
-         <li className='last disabled' style={{}}>
-            <Link
-               className='page-link'
-               href={`/`}
-               aria-disabled='true'
-               style={{ borderRadius: '1rem' }}>
-               Last
-            </Link>
-         </li>
+            </PaginationLink>
+         </PaginationItem>
       );
+   };
 
    const totalResults = props.totalResults ? (
       <li style={{ padding: '5px 10px' }}>Total Results: {props.totalResults}</li>
@@ -142,14 +138,25 @@ export function Pager(props: Props) {
    );
 
    return (
-      <nav className={'pager'} aria-label='Page navigation'>
-         <ul className='pagination justify-content-center' style={{ width: '100%' }}>
-            {props.totalPages && props.totalPages > 1 ? (
-               <>
-                  {firstPage} {prevPage} {totalResults} {nextPage} {lastPage}
-               </>
-            ) : null}
-         </ul>
-      </nav>
+      // <nav className={'pager'} aria-label='Page navigation'>
+      //    <ul className='pagination justify-content-center' style={{ width: '100%' }}>
+      //       {props.totalPages && props.totalPages > 1 ? (
+      //          <>
+      //             {firstPage} {prevPage} {totalResults} {nextPage} {lastPage}
+      //          </>
+      //       ) : null}
+      //    </ul>
+      // </nav>
+      <Pagination>
+         <PaginationContent>
+            {getFirstPage()}
+            {getPreviousPage()}
+            <PaginationItem>
+               <PaginationEllipsis />
+            </PaginationItem>
+            {getNextPage()}
+            {lastPage()}
+         </PaginationContent>
+      </Pagination>
    );
 }

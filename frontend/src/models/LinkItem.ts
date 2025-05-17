@@ -38,18 +38,12 @@ export interface LinkItem {
     * @memberof LinkItem
     */
    description?: string;
-
    /**
     *
     * @type {string}
     * @memberof LinkItem
     */
    domain?: string;
-   /**
-    *
-    * @type {string}
-    * @memberof LinkItem
-    */
    imageUrl?: string;
    /**
     *

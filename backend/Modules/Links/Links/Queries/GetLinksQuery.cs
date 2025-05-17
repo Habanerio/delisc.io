@@ -50,7 +50,7 @@ public class GetLinksQueryHandler(ILinksRepository linksRepository) :
             await _linksRepository.FindAsync(
             term: query.SearchTerm,
             tags: query.Tags,
-            domain: string.Empty,
+            domain: query.Domain,
             pageNo: query.PageNo,
             pageSize: query.PageSize,
             cancellationToken: cancellationToken);

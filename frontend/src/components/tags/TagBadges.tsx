@@ -35,7 +35,7 @@ export function TagBadges({ tags }: TagPillsProps) {
 
    return (
       <>
-         <span className={cn('flex flex-wrap gap-1 justify-evenly')}>{results}</span>
+         <span className={cn('flex flex-wrap gap-1 justify-start')}>{results}</span>
       </>
    );
 }

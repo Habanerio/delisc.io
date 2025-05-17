@@ -6,7 +6,6 @@ import Link from 'next/link';
 
 import { LinkItem } from '@//models';
 import { TagBadges } from '../tags';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '../ui/card';
 
 const brokenImg = '/no-image-found.png';
 
@@ -31,8 +30,7 @@ export default function LinkCard(item: LinkItem) {
       setSrc(imgUrl);
    }, [item]);
 
-   const title =
-      item.title && item.title.length > 50 ? item.title.slice(0, 47) + '...' : item.title || '';
+   const title = item.title; //&& item.title.length > 50 ? item.title.slice(0, 47) + '...' : item.title || '';
 
    const description =
       item.description && item.description.length > 100
@@ -56,8 +54,8 @@ export default function LinkCard(item: LinkItem) {
    };
 
    return (
-      <div className='border-1 rounded-md shadow-sm bg-white'>
-         <Link href={`/link/${item.id}`} className='flex flex-col h-full'>
+      <div key={item.id} className='border-1 rounded-md shadow-sm bg-white'>
+         <Link href={`/link/${item.id}`} key={item.id} className='flex flex-col h-full'>
             <Image
                src={src}
                alt={title}
@@ -70,7 +68,7 @@ export default function LinkCard(item: LinkItem) {
                onError={(e) => onImgError(e)}
             />
             <div className='flex flex-col flex-1 p-2'>
-               <h5 className='blo text-gray-900 font-bold'>{title}</h5>
+               <h5 className='blo text-gray-900 font-bold truncate'>{title}</h5>
                <p>
                   via : <span>{item.domain}</span>
                </p>

@@ -12,6 +12,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Links.Endpoints;
 
@@ -39,6 +40,7 @@ internal sealed class GetLinkEndpoint : IEndpoint
 
                     return rslt.Match(Results.Ok, Results.BadRequest);
                 })
+            .CacheOutput()
             .Produces<Link?>()
             .ProducesProblem((int)HttpStatusCode.BadRequest)
             .ProducesProblem((int)HttpStatusCode.NotFound)

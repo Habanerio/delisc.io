@@ -10,10 +10,18 @@ type Props = {
    className?: string;
    href: string;
    count: number;
+   tagId: string;
    totalCount: number;
 };
 
-export function TagBadge({ name, className, href, count, totalCount }: Props) {
+export function TagBadge({
+   name,
+   className,
+   href,
+   count,
+   tagId,
+   totalCount,
+}: Props) {
    const css = `tag ${className ? className : ''}`;
 
    const sanitizedHref = `${href.replace(/ /g, '+')}`;
@@ -26,13 +34,12 @@ export function TagBadge({ name, className, href, count, totalCount }: Props) {
            : 0.8;
 
    return (
-      <span key={name} className={css}>
-         <Link
-            href={sanitizedHref}
-            className={cn(badgeVariants({ variant: 'default' }), `text-[${tagSize}rem]`, css)}
-            title={`${name} Tag`}>
-            {name}
-         </Link>
-      </span>
+      <Link
+         key={name}
+         href={sanitizedHref}
+         className={cn('tag', tagId)}
+         title={`${name} Tag`}>
+         {name}
+      </Link>
    );
 }

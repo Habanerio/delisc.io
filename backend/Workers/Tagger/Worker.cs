@@ -84,6 +84,8 @@ public class Worker : BackgroundService
                     $"extract **5-7** tags that best represent the content.{Environment.NewLine}" +
 
                     $"*   Tags should be short (1-2 words max).{Environment.NewLine}" +
+                    $"*   If a tag is more than one word, and each word could be a relevant tag, then split them up (eg: `Grilled Chicken` could be `Grilled` and `Chicken`, or `Quantum Mechanics` could be `Quantum Physics` and `Mechanics`, or `Mexican Food` could be `Mexican` and `Food`" +
+                    $"*   If there are variations of a word, pick the most common version (eg: `Barbecue`, `Barbeque`, `BBQ`, use `BBQ`" +
                     $"*   Tags should be relevant to the content of the webpage.{Environment.NewLine}" +
                     $"*   Consider subject matter, topic, and potential user search terms.{Environment.NewLine}" +
                     $"*   Tags should be in lowercase.{Environment.NewLine}" +
@@ -104,7 +106,7 @@ public class Worker : BackgroundService
                     $"Keywords: " +
 
                     $"Example Output: " +
-                    $"science, quantum, quantum paradox, quantum mechanics, science, reality, physics, observation, thought experiment " +
+                    $"science, quantum, paradox, mechanics, science, reality, physics, observation, thought experiment " +
 
                     $"Now, generate the tags for the details below. " +
 

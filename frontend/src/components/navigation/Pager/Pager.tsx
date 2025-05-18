@@ -53,11 +53,18 @@ export function Pager(props: Props) {
       const currentPage = props.currentPage ?? 1;
 
       const href =
-         currentPage > 1 ? (query.size > 0 ? `${pathName}?${query.toString}` : `${pathName}?`) : '';
+         currentPage > 1
+            ? query.size > 0
+               ? `${pathName}?${query.toString}`
+               : `${pathName}?`
+            : '';
 
       return (
          <PaginationItem className='first'>
-            <PaginationLink href={href} isActive={href !== ''} aria-label='Go to the first page'>
+            <PaginationLink
+               href={href}
+               isActive={href !== ''}
+               aria-label='Go to the first page'>
                First
             </PaginationLink>
          </PaginationItem>
@@ -124,7 +131,10 @@ export function Pager(props: Props) {
 
       return (
          <PaginationItem className='last' style={{}}>
-            <PaginationLink href={href} isActive={href !== ''} aria-label='Go to the last page'>
+            <PaginationLink
+               href={href}
+               isActive={href !== ''}
+               aria-label='Go to the last page'>
                Last
             </PaginationLink>
          </PaginationItem>
@@ -132,23 +142,16 @@ export function Pager(props: Props) {
    };
 
    const totalResults = props.totalResults ? (
-      <li style={{ padding: '5px 10px' }}>Total Results: {props.totalResults}</li>
+      <li style={{ padding: '5px 10px' }}>
+         Total Results: {props.totalResults}
+      </li>
    ) : (
       <li style={{ padding: '5px 10px' }}></li>
    );
 
    return (
-      // <nav className={'pager'} aria-label='Page navigation'>
-      //    <ul className='pagination justify-content-center' style={{ width: '100%' }}>
-      //       {props.totalPages && props.totalPages > 1 ? (
-      //          <>
-      //             {firstPage} {prevPage} {totalResults} {nextPage} {lastPage}
-      //          </>
-      //       ) : null}
-      //    </ul>
-      // </nav>
       <Pagination>
-         <PaginationContent>
+         <PaginationContent className='flex w-full items-center justify-between'>
             {getFirstPage()}
             {getPreviousPage()}
             <PaginationItem>

@@ -35,7 +35,7 @@ public sealed class LinksRepository(IMongoDatabase mongoDb) :
         if (pageSize < 1)
             throw new ArgumentOutOfRangeException(nameof(pageSize));
 
-        var tagsArr = tags?.Trim().Split(',') ?? [];
+        var tagsArr = tags?.Trim().Split(',')?.Where(t => !string.IsNullOrWhiteSpace(t)).ToArray() ?? [];
 
         var rslts = await FindAsync(term, tagsArr, domain, pageNo, pageSize, skip, isActive, isFlagged, isDeleted, cancellationToken);
 
@@ -55,14 +55,40 @@ public sealed class LinksRepository(IMongoDatabase mongoDb) :
         if (pageSize < 1)
             throw new ArgumentOutOfRangeException(nameof(pageSize));
 
-        Expression<Func<LinkEntity, bool>> predicate =
-            (l => (string.IsNullOrWhiteSpace(term) ||
-                   l.Title.ToUpperInvariant().Contains(term.ToUpperInvariant()))
-                  && (string.IsNullOrWhiteSpace(domain) ||
-                      l.Domain.ToUpperInvariant().Contains(domain.ToUpperInvariant()))
-                  && (isActive == null || l.IsActive == isActive.Value)
-                  && (isFlagged == null || l.IsFlagged == isFlagged.Value)
-                  && (isDeleted == null || l.IsDeleted == isDeleted.Value));
+        var hasSearchTerm = !string.IsNullOrWhiteSpace(term);
+        var hasDomain = !string.IsNullOrWhiteSpace(domain);
+        var hasTags = tags?.Where(t => t.Trim() != "").ToArray().Length > 0;
+
+
+        Expression<Func<LinkEntity, bool>> predicate = (l => (
+              //!hasSearchTerm ||
+              //  (
+              //      l.Title.Contains(term, StringComparison.InvariantCultureIgnoreCase) ||
+              //      l.Description.Contains(term, StringComparison.InvariantCultureIgnoreCase)
+              //  )
+              //  && 
+              (
+                  !hasTags ||
+                  tags!.All(tag => l.Tags.Any(linkTag => linkTag.Name == tag)
+                  )
+              )
+              && (isActive == null || l.IsActive == isActive.Value)
+              && (isFlagged == null || l.IsFlagged == isFlagged.Value)
+              && (isDeleted == null || l.IsDeleted == isDeleted.Value)));
+
+        //Expression <Func<LinkEntity, bool>> predicate =
+
+        //          && (
+        //            !hasDomain ||
+        //                l.Domain.Contains(domain, StringComparison.InvariantCultureIgnoreCase)
+        //              )
+        //          && (
+        //            hasTags ||
+        //                tags!.All(tag => l.Tags.Any(linkTag => linkTag.Name == tag))
+        //                      )
+        //                      && (isActive == null || l.IsActive == isActive.Value)
+        //                      && (isFlagged == null || l.IsFlagged == isFlagged.Value)
+        //                      && (isDeleted == null || l.IsDeleted == isDeleted.Value)));
 
         var rslts = await FindDocumentsAsync(
             predicate,

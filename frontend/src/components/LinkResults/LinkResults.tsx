@@ -5,26 +5,31 @@ import { LinkCards } from '@/components/LinkCards';
 import { Pager } from '@/components/navigation/Pager';
 
 export interface Props {
-   tagsParams?: string[];
    searchParams?: { [key: string]: string | string[] | undefined };
 }
 
-export async function LinkResults({ tagsParams, searchParams }: Props) {
-   const searchParamaters = await searchParams;
+async function getLinks(
+   searchParams: { [key: string]: string | string[] | undefined } | undefined,
+) {
+   const page =
+      searchParams && searchParams?.page
+         ? parseInt(searchParams?.page as string)
+         : 1;
+   const tags = searchParams?.tags
+      ? searchParams?.tags?.toString().split(',')
+      : [];
 
-   const page = searchParamaters?.page ? parseInt(searchParamaters?.page as string) : 1;
-   const tags =
-      tagsParams && tagsParams.length > 0
-         ? tagsParams
-         : searchParamaters?.tags
-           ? searchParamaters?.tags?.toString().split(',')
-           : [];
-
-   const linksApi = new LinksApi(); // Create an instance
-   const links = await linksApi.apiV1LinksGet({
+   const linksApi = new LinksApi();
+   return await linksApi.apiV1LinksGet({
       pageNo: page,
       tags: tags.join(','),
    });
+}
+
+export async function LinkResults({ searchParams }: Props) {
+   const searchParameters = await searchParams;
+
+   const links = await getLinks(searchParameters);
 
    const getMainContent = (): React.ReactNode => {
       return (
@@ -39,13 +44,5 @@ export async function LinkResults({ tagsParams, searchParams }: Props) {
       );
    };
 
-   return (
-      <>
-         {getMainContent()}
-         {/* <ContentWithRightSideBar
-            main={getMainContent()}
-            rightSide={<PopularRelatedTags currentTags={tags} />}
-         /> */}
-      </>
-   );
+   return <>{getMainContent()}</>;
 }

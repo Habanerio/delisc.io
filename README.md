@@ -1,4 +1,4 @@
-# Deliscio - A del.icio.us-ly 'aspired' Web App
+# Delisc.io - A del.icio.us-ly 'aspired' Web App
 
 Deliscio is a NextJS / .Net 9 web application, inspired by the once famous `del.icio.us-ly` social bookmarking site.
 

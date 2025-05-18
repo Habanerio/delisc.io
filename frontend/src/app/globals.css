@@ -17,7 +17,7 @@
    --color-lime: #a8e6cf;
 
    --radius: 0.625rem;
-   --background: oklch(1 0 0);
+   --background: #f5f5f5;
    --foreground: oklch(0.145 0 0);
    --card: oklch(1 0 0);
    --card-foreground: oklch(0.145 0 0);
@@ -138,4 +138,42 @@
    body {
       @apply bg-background text-foreground;
    }
+
+   .tag {
+      @apply rounded-md text-sm font-medium leading-none p-2;
+   }
+
+   .tag1 {
+      @apply bg-chart-1 text-primary [a&]:hover:bg-chart-3 [a&]:hover:text-background;
+   }
+
+   .tag2 {
+      @apply bg-chart-2 text-foreground [a&]:hover:bg-secondary/90;
+   }
+
+   .tag3 {
+      @apply bg-chart-3 text-background [a&]:hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40 dark:bg-destructive/60;
+   }
+
+   .tag4 {
+      @apply bg-chart-4 text-foreground [a&]:hover:bg-chart-1 [a&]:hover:text-primary;
+   }
+
+   .tag5 {
+      @apply bg-chart-5 text-foreground [a&]:hover:bg-chart-2 [a&]:hover:text-foreground;
+   }
 }
+
+/*
+ variant: {
+        default:
+          "border-transparent bg-primary t
+          ext-primary-foreground [a&]:hover:bg-primary/90",
+        secondary:
+          "border-transparent bg-secondary text-secondary-foreground [a&]:hover:bg-secondary/90",
+        destructive:
+          "border-transparent bg-destructive text-white [a&]:hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40 dark:bg-destructive/60",
+        outline:
+          "text-foreground [a&]:hover:bg-accent [a&]:hover:text-accent-foreground",
+      },
+*/

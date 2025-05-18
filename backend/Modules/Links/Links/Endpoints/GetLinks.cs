@@ -13,6 +13,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Links.Endpoints;
 
@@ -51,6 +52,7 @@ internal sealed class GetLinksEndpoint : IEndpoint
 
                     return rslts.Match(Results.Ok, Results.BadRequest);
                 })
+            .CacheOutput()
             .Produces<PagedResults<LinkItem>>()
             .ProducesProblem((int)HttpStatusCode.BadRequest)
             .WithDisplayName("Get Links")

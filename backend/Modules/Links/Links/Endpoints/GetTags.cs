@@ -12,6 +12,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Links.Endpoints;
 
@@ -35,6 +36,7 @@ internal sealed class GetTagsEndpoint : IEndpoint
 
                 return rslts.Match(Results.Ok, Results.BadRequest);
             })
+            .CacheOutput()
             .Produces<LinkTag[]>()
             .ProducesProblem((int)HttpStatusCode.BadRequest)
             .WithDisplayName("Get Tags")

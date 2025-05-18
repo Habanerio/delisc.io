@@ -18,6 +18,8 @@ I am still really early into the development, so, please excuse any mess that yo
 - Click Run
 - Tada!
 
+- Note: Web app needs to run on its own. Will need to add it to Aspire at some point
+
 ## Notes
 - It does use Ollama (for tagging), and has a LLM already specified. 
   Depending on your system, or preference, you may want to change it. 

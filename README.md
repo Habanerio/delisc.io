@@ -4,7 +4,9 @@ Deliscio is a NextJS / .Net 9 web application, inspired by the once famous `del.
 
 I am still really early into the development, so, please excuse any mess that you may encounter, or any issues.
 
-<img src="../.images/aspire-dashboard.png" alt="Aspire DAshboard" />
+<img src="https://github.com/Habanerio/delisc.io/blob/main/.images/deliscio-home.png" alt="Homepage" />
+<img src="https://github.com/Habanerio/delisc.io/blob/main/.images/aspire-dashboard.png" alt="Aspire Dashboard" />
+<img src="https://github.com/Habanerio/delisc.io/blob/main/.images/aspire-graph.png" alt="Aspire Graph" />
 
 ## Technologies
 - Frontend: NextJS / Tailwind / Shadcn

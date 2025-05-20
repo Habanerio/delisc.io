@@ -35,7 +35,7 @@ public sealed class LinksRepository(IMongoDatabase mongoDb) :
         if (pageSize < 1)
             throw new ArgumentOutOfRangeException(nameof(pageSize));
 
-        var tagsArr = tags?.Trim().Split(',')?.Where(t => !string.IsNullOrWhiteSpace(t)).ToArray() ?? [];
+        var tagsArr = tags.Trim().Split(',')?.Where(t => !string.IsNullOrWhiteSpace(t)).ToArray() ?? [];
 
         var rslts = await FindAsync(term, tagsArr, domain, pageNo, pageSize, skip, isActive, isFlagged, isDeleted, cancellationToken);
 
@@ -61,34 +61,21 @@ public sealed class LinksRepository(IMongoDatabase mongoDb) :
 
 
         Expression<Func<LinkEntity, bool>> predicate = (l => (
-              //!hasSearchTerm ||
-              //  (
-              //      l.Title.Contains(term, StringComparison.InvariantCultureIgnoreCase) ||
-              //      l.Description.Contains(term, StringComparison.InvariantCultureIgnoreCase)
-              //  )
-              //  && 
-              (
+              !hasSearchTerm ||
+                (
+                    l.Title.Contains(term, StringComparison.InvariantCultureIgnoreCase) ||
+                    l.Description.Contains(term, StringComparison.InvariantCultureIgnoreCase)
+                )
+                &&
+                !hasDomain ||
+                (
                   !hasTags ||
                   tags!.All(tag => l.Tags.Any(linkTag => linkTag.Name == tag)
                   )
-              )
-              && (isActive == null || l.IsActive == isActive.Value)
-              && (isFlagged == null || l.IsFlagged == isFlagged.Value)
-              && (isDeleted == null || l.IsDeleted == isDeleted.Value)));
-
-        //Expression <Func<LinkEntity, bool>> predicate =
-
-        //          && (
-        //            !hasDomain ||
-        //                l.Domain.Contains(domain, StringComparison.InvariantCultureIgnoreCase)
-        //              )
-        //          && (
-        //            hasTags ||
-        //                tags!.All(tag => l.Tags.Any(linkTag => linkTag.Name == tag))
-        //                      )
-        //                      && (isActive == null || l.IsActive == isActive.Value)
-        //                      && (isFlagged == null || l.IsFlagged == isFlagged.Value)
-        //                      && (isDeleted == null || l.IsDeleted == isDeleted.Value)));
+                )
+                && (isActive == null || l.IsActive == isActive.Value)
+                && (isFlagged == null || l.IsFlagged == isFlagged.Value)
+                && (isDeleted == null || l.IsDeleted == isDeleted.Value)));
 
         var rslts = await FindDocumentsAsync(
             predicate,
@@ -189,12 +176,11 @@ public sealed class LinksRepository(IMongoDatabase mongoDb) :
         // Execute the aggregation pipeline
         var cursor = await Collection.AggregateAsync<BsonDocument>(pipeline, cancellationToken: cancellationToken);
 
-        var relatedTags = cursor?
-            .ToList(cancellationToken)
+        var relatedTags = (await cursor!
+            .ToListAsync(cancellationToken))
             .OrderByDescending(t => t["Count"].AsInt32)
             .Select(x => new LinkTagEntity(x["TagName"].AsString, x["Count"].AsInt32))
-            .ToArray()
-        ?? [];
+            .ToArray();
 
         if (!relatedTags.Any())
             return [];

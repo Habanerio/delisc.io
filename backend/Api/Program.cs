@@ -62,6 +62,6 @@ if (app.Environment.IsDevelopment())
 
 app.MapEndpoints();
 
-app.Run();
+await app.RunAsync();
 
 public partial class Program;

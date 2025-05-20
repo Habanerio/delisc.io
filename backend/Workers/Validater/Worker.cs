@@ -229,7 +229,7 @@ public class Worker : BackgroundService
 
         if (Uri.TryCreate(url, UriKind.Absolute, out Uri? uri))
         {
-            var host = uri?.Host?.Replace("www.", "").ToLower() ?? string.Empty;
+            var host = uri.Host?.Replace("www.", "").ToLower() ?? string.Empty;
 
             return host;
         }

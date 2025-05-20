@@ -98,4 +98,4 @@ builder.AddNpmApp("react", "../../../frontend/")
     .PublishAsDockerFile();
 */
 
-builder.Build().Run();
+await builder.Build().RunAsync();

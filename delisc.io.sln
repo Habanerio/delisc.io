@@ -78,6 +78,13 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AppHost", "backend\Aspire\A
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FinalizeService", "backend\Workers\Finalizer\FinalizeService\FinalizeService.csproj", "{211624A5-9652-4090-856F-73E77E493297}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".images", ".images", "{C628F7B5-D40E-418F-9DBF-C3FF6F3976F7}"
+	ProjectSection(SolutionItems) = preProject
+		.images\aspire-dashboard.png = .images\aspire-dashboard.png
+		.images\aspire-graph.png = .images\aspire-graph.png
+		.images\deliscio-home.png = .images\deliscio-home.png
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU

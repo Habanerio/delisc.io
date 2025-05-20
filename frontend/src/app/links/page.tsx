@@ -15,18 +15,9 @@ export async function generateMetadata({
    const params = (await searchParams) || {};
 
    const page = params?.page ? Number(params.page) : 1;
+
    const tagsArr = useGetTagsAsArray(params.tags, false);
-   // const tagsArr = params?.tags
-   //    ? Array.isArray(params.tags)
-   //       ? params.tags
-   //       : params.tags.split(',')
-   //    : [];
-
    const tagsSortedArr = useGetTagsAsArray(tagsArr, true);
-   // .sort((a, b) =>
-   //       a.localeCompare(b, undefined, { sensitivity: 'base' }),
-   //    );
-
    const tagsSortedStr = tagsSortedArr.join(', ').trim();
 
    let title = 'Links';

@@ -28,12 +28,12 @@ public class Worker : BackgroundService
             throw new ArgumentNullException(nameof(submissionsRepository));
     }
 
-    protected override async Task ExecuteAsync(CancellationToken cancellationToken)
+    protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        while (!cancellationToken.IsCancellationRequested)
+        while (!stoppingToken.IsCancellationRequested)
         {
             var rslts = await _submissionsRepository.GetByStateAsync(
-                SubmissionState.Crawled, cancellationToken: cancellationToken);
+                SubmissionState.Crawled, cancellationToken: stoppingToken);
 
             if (!rslts.IsSuccess)
             {
@@ -45,10 +45,10 @@ public class Worker : BackgroundService
             }
             else
             {
-                await ProcessMessagesAsync(rslts.ValueOrDefault, cancellationToken);
+                await ProcessMessagesAsync(rslts.ValueOrDefault, stoppingToken);
             }
 
-            await Task.Delay(_pollingIntervalSeconds, cancellationToken);
+            await Task.Delay(_pollingIntervalSeconds, stoppingToken);
         }
     }
 

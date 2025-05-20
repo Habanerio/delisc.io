@@ -35,14 +35,14 @@ public class Worker : BackgroundService
             throw new ArgumentNullException(nameof(submissionRepository));
     }
 
-    protected override async Task ExecuteAsync(CancellationToken cancellationToken)
+    protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        while (!cancellationToken.IsCancellationRequested)
+        while (!stoppingToken.IsCancellationRequested)
         {
             try
             {
                 var rslts = await _submissionRepository.GetByStateAsync(
-                    SubmissionState.Validated, cancellationToken: cancellationToken);
+                    SubmissionState.Validated, cancellationToken: stoppingToken);
 
                 if (!rslts.IsSuccess)
                 {
@@ -54,7 +54,7 @@ public class Worker : BackgroundService
                 }
                 else
                 {
-                    await ProcessMessagesAsync(rslts.ValueOrDefault, cancellationToken);
+                    await ProcessMessagesAsync(rslts.ValueOrDefault, stoppingToken);
                 }
             }
             catch (Exception e)
@@ -65,7 +65,7 @@ public class Worker : BackgroundService
                 // Dead letter?
             }
 
-            await Task.Delay(_pollingIntervalSeconds, cancellationToken);
+            await Task.Delay(_pollingIntervalSeconds, stoppingToken);
         }
     }
 

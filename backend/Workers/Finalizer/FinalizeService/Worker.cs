@@ -10,62 +10,56 @@ namespace FinalizeService;
 /// <summary>
 /// Responsible for finalizing the submissions.
 /// </summary>
-public class Worker : BackgroundService
+public class Worker(
+    ILinksRepository linksRepository,
+    ILogger<Worker> logger,
+    ISubmissionsRepository submissionsRepository)
+    : BackgroundService
 {
-    private readonly ILinksRepository _linksRepository;
-    private readonly ISubmissionsRepository _submissionsRepository;
-    private readonly ILogger<Worker> _logger;
+    private readonly ILinksRepository _linksRepository = linksRepository ??
+        throw new ArgumentNullException(nameof(linksRepository));
+
+    private readonly ISubmissionsRepository _submissionsRepository = submissionsRepository ??
+        throw new ArgumentNullException(nameof(submissionsRepository));
 
     private readonly int _pollingIntervalSeconds = 15;
 
-    public Worker(ILinksRepository linksRepository, ILogger<Worker> logger,
-        ISubmissionsRepository submissionsRepository)
+    protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        _logger = logger;
-
-        _linksRepository = linksRepository ??
-                           throw new ArgumentNullException(nameof(linksRepository));
-
-        _submissionsRepository = submissionsRepository ??
-                                 throw new ArgumentNullException(nameof(submissionsRepository));
-    }
-
-    protected override async Task ExecuteAsync(CancellationToken cancellationToken)
-    {
-        while (!cancellationToken.IsCancellationRequested)
+        while (!stoppingToken.IsCancellationRequested)
         {
             try
             {
                 var taggedRslts = await _submissionsRepository.GetByStateAsync(
-                    SubmissionState.Tagged, cancellationToken: cancellationToken);
+                    SubmissionState.Tagged, cancellationToken: stoppingToken);
 
                 var existsRslts = await _submissionsRepository.GetByStateAsync(
-                    SubmissionState.Exists, cancellationToken: cancellationToken);
+                    SubmissionState.Exists, cancellationToken: stoppingToken);
 
                 //TODO: Get submissions that exist.
 
                 if (!taggedRslts.IsSuccess)
                 {
-                    _logger.LogError("Finalizing - {time}: {errors}", DateTimeOffset.Now, taggedRslts.Errors);
+                    logger.LogError("Finalizing - {time}: {errors}", DateTimeOffset.Now, taggedRslts.Errors);
                 }
                 else if (!taggedRslts.ValueOrDefault.Any())
                 {
-                    _logger.LogInformation("Finalizing - {time}: No new submissions", DateTimeOffset.Now);
+                    logger.LogInformation("Finalizing - {time}: No new submissions", DateTimeOffset.Now);
                 }
                 else
                 {
-                    await ProcessMessagesAsync(taggedRslts.ValueOrDefault, cancellationToken);
+                    await ProcessMessagesAsync(taggedRslts.ValueOrDefault, stoppingToken);
                 }
             }
             catch (Exception e)
             {
                 // Log the error
-                _logger.LogError(e, "Error while attempting to retrieve submissions to finalize.");
+                logger.LogError(e, "Error while attempting to retrieve submissions to finalize.");
 
                 // Dead letter?
             }
 
-            await Task.Delay(_pollingIntervalSeconds, cancellationToken);
+            await Task.Delay(_pollingIntervalSeconds, stoppingToken);
         }
     }
 
@@ -79,6 +73,7 @@ public class Worker : BackgroundService
                 var linkEntity = LinkEntity.Create(
                     submission.Url, submission.Title, submission.UserId,
                     submission.Tags?.ToArray() ?? []);
+
                 linkEntity.Description = submission.Description;
                 linkEntity.Domain = submission.Domain;
                 linkEntity.ImageUrl = submission.MetaData.OgImage;
@@ -89,7 +84,7 @@ public class Worker : BackgroundService
 
                 if (!didLinkSave.IsSuccess)
                 {
-                    _logger.LogError("Error while finalizing the submission: {SubmissionId}", submission.Id);
+                    logger.LogError("Error while finalizing the submission: {SubmissionId}", submission.Id);
 
                     submission.State = SubmissionState.FinalizeError;
                     submission.Message = $"Error while finalizing the submission: {didLinkSave.Errors}";

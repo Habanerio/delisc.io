@@ -65,17 +65,16 @@ public sealed class LinksRepository(IMongoDatabase mongoDb) :
                 (
                     l.Title.Contains(term, StringComparison.InvariantCultureIgnoreCase) ||
                     l.Description.Contains(term, StringComparison.InvariantCultureIgnoreCase)
-                )
+                ))
                 &&
-                !hasDomain ||
-                (
-                  !hasTags ||
-                  tags!.All(tag => l.Tags.Any(linkTag => linkTag.Name == tag)
-                  )
+                (!hasDomain || l.Domain.Equals(domain, StringComparison.InvariantCultureIgnoreCase))
+                &&
+                (!hasTags ||
+                  tags!.All(tag => l.Tags.Any(linkTag => linkTag.Name == tag))
                 )
                 && (isActive == null || l.IsActive == isActive.Value)
                 && (isFlagged == null || l.IsFlagged == isFlagged.Value)
-                && (isDeleted == null || l.IsDeleted == isDeleted.Value)));
+                && (isDeleted == null || l.IsDeleted == isDeleted.Value));
 
         var rslts = await FindDocumentsAsync(
             predicate,

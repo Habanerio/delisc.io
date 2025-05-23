@@ -23,6 +23,7 @@
     </ItemGroup>
 
     <ItemGroup>
+        <ProjectReference Include="..\Aspire\Defaults\Defaults.csproj" />
         <ProjectReference Include="..\Common\Common.Data\Common.Data.csproj" />
         <ProjectReference Include="..\Common\Common\Common.csproj" />
         <ProjectReference Include="..\Modules\Links\Links\Links.csproj" />

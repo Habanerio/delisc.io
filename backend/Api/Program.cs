@@ -1,6 +1,8 @@
 using Common.Data;
 using Common.Endpoints.Extensions;
 
+using Defaults;
+
 using Links;
 
 using Microsoft.Extensions.Options;
@@ -13,6 +15,8 @@ using MongoDB.Driver;
 using Submissions;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.AddServiceDefaults();
 
 BsonSerializer.RegisterSerializer(new GuidSerializer(GuidRepresentation.Standard));
 
@@ -44,6 +48,8 @@ builder.Services.AddSubmissionsModule();
 
 
 var app = builder.Build();
+
+app.MapDefaultEndpoints();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

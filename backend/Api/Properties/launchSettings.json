@@ -6,7 +6,7 @@
         "ASPNETCORE_ENVIRONMENT": "Development"
       },
       "dotnetRunMessages": true,
-      "applicationUrl": "http://localhost:5033"
+      "applicationUrl": "http://127.0.0.1:5033"
     },
     "https": {
       "commandName": "Project",
@@ -15,7 +15,7 @@
       },
       "dotnetRunMessages": true,
       "launchUrl": "openapi/v1.json",
-      "applicationUrl": "https://localhost:7088;http://localhost:5033"
+      "applicationUrl": "https://127.0.0.1:7088;http://127.0.0.1:5033"
     },
     "Container (Dockerfile)": {
       "commandName": "Docker",

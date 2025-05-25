@@ -14,6 +14,9 @@ public class LinksDbContext<TDocument> : MongoDbContext<TDocument> where TDocume
         //Configure();
     }
 
+    public LinksDbContext(IMongoClient mongoClient, string databaseName) : base(mongoClient, databaseName)
+    { }
+
     protected void Configure()
     {
         BsonClassMap.RegisterClassMap<LinkEntity>(cm =>

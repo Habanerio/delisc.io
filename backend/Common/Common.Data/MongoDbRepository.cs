@@ -13,6 +13,10 @@ public class MongoDbRepository<TDocument> :
 {
     protected MongoDbRepository(MongoDbContext<TDocument> dbContext) : base(dbContext) { }
 
+    protected MongoDbRepository(IMongoClient mongoDb, MongoDbSettings mongoSettings) :
+        base(mongoDb, mongoSettings)
+    { }
+
     public override async Task<TDocument> GetDocumentAsync(
         Guid id,
         CancellationToken cancellationToken = default)
@@ -77,15 +81,28 @@ public class MongoDbRepository<TDocument> :
     }
 }
 
-public abstract class MongoDbRepository<TDocument, TId>(MongoDbContext<TDocument> dbContext) :
+public abstract class MongoDbRepository<TDocument, TId> :
     IMongoDbRepository<TDocument, TId>
     where TDocument : IMongoDocument
 {
-    private readonly IMongoDbContext _context = dbContext;
+    private readonly IMongoDbContext _context;
 
     // Best to have your messages in a const for performance reasons
     internal const string EXCEPTION_COLLECTION_NOT_FOUND = "The collection was not found";
     internal const string EXCEPTION_ID_CANT_BE_EMPTY = "The Id(s) cannot be empty";
+
+    protected MongoDbRepository(MongoDbContext<TDocument> dbContext)
+    {
+        _context = dbContext ??
+            throw new ArgumentNullException(nameof(dbContext));
+    }
+
+    protected MongoDbRepository(IMongoClient mongoClient, MongoDbSettings mongoSettings)
+    {
+        var db = mongoClient.GetDatabase(mongoSettings.DatabaseName);
+
+        _context = new MongoDbContext<TDocument>(db);
+    }
 
     protected IMongoCollection<TDocument> Collection => _context.Collection<TDocument>() ??
         throw new InvalidOperationException(EXCEPTION_COLLECTION_NOT_FOUND);

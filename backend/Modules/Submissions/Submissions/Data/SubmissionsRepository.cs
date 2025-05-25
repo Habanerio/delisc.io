@@ -9,10 +9,13 @@ using Submissions.Interfaces;
 
 namespace Submissions.Data;
 
-public class SubmissionsRepository(IMongoDatabase mongoDb) :
-    MongoDbRepository<SubmissionEntity>(new SubmissionsDbContext<SubmissionEntity>(mongoDb)),
+public sealed class SubmissionsRepository :
+    MongoDbRepository<SubmissionEntity>,
     ISubmissionsRepository
 {
+    public SubmissionsRepository(IMongoDatabase mongoDb) :
+        base(new SubmissionsDbContext<SubmissionEntity>(mongoDb)) { }
+        
     public Task<Result<string>> GetAsync(Guid submissionId, CancellationToken cancellationToken = default)
     {
         throw new NotImplementedException();

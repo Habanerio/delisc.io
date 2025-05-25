@@ -1,13 +1,8 @@
-using Common.Data;
-
 using Defaults;
-
-using Microsoft.Extensions.Options;
 
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
-using MongoDB.Driver;
 
 using Submissions.Data;
 using Submissions.Interfaces;
@@ -27,16 +22,6 @@ builder.Logging.AddConsole();
 builder.Services.AddSingleton<HttpClient>();
 
 //builder.AddRabbitMQClient(connectionName: "rabbitmq");
-builder.Services.Configure<MongoDbSettings>(builder.Configuration.GetSection("MongoDBSettings"));
-
-builder.Services.AddSingleton<IMongoDatabase>(sp =>
-{
-    var client = sp.GetRequiredService<IMongoClient>();
-
-    return client.GetDatabase(sp.GetRequiredService<IOptions<MongoDbSettings>>()
-        .Value
-        .DatabaseName);
-});
 
 // Aspire Docker Services
 

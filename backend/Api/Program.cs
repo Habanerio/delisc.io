@@ -1,73 +1,76 @@
-using Common.Data;
 using Common.Endpoints.Extensions;
 
 using Defaults;
 
 using Links;
 
-using Microsoft.Extensions.Options;
-
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
-using MongoDB.Driver;
+
+using Structurizr.Annotations;
 
 using Submissions;
 
-var builder = WebApplication.CreateBuilder(args);
+namespace Deliscio.Api;
 
-builder.AddServiceDefaults();
-
-BsonSerializer.RegisterSerializer(new GuidSerializer(GuidRepresentation.Standard));
-
-builder.Logging.ClearProviders();
-builder.Logging.AddConsole();
-
-builder.Services.AddCors();
-
-builder.Services.AddOpenApi();
-
-builder.Services.Configure<MongoDbSettings>(builder.Configuration.GetSection("MongoDBSettings"));
-
-builder.Services.AddSingleton<IMongoDatabase>(sp =>
+[Component(Description = "The Deliscio website's API service", Technology = "C#")]
+[UsedByPerson("End Users", Description = "Public APIs")]
+public class Program
 {
-    var client = sp.GetRequiredService<IMongoClient>();
-
-    return client.GetDatabase(sp.GetRequiredService<IOptions<MongoDbSettings>>()
-        .Value
-        .DatabaseName);
-});
-
-// Aspire Docker Services
-builder.AddMongoDBClient(connectionName: "delisciodb");
-builder.AddRedisClient(connectionName: "redis");
-builder.AddRedisOutputCache(connectionName: "redis-output");
-
-builder.Services.AddLinksModule();
-builder.Services.AddSubmissionsModule();
-
-
-var app = builder.Build();
-
-app.MapDefaultEndpoints();
-
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.UseCors(options =>
+    public static void Main(string[] args)
     {
-        options.AllowAnyOrigin()
-            .AllowAnyMethod()
-            .AllowAnyHeader();
-    });
+        var builder = WebApplication.CreateBuilder(args);
 
-    app.MapOpenApi();
+        builder.AddServiceDefaults();
+
+        // Only register BSON serializer if not already registered (to prevent test conflicts)
+        try
+        {
+            BsonSerializer.RegisterSerializer(new GuidSerializer(GuidRepresentation.Standard));
+        }
+        catch (BsonSerializationException)
+        {
+            // Serializer already registered, ignore
+        }
+
+        builder.Logging.ClearProviders();
+        builder.Logging.AddConsole();
+
+        builder.Services.AddCors();
+
+        builder.Services.AddOpenApi();
+
+        // Aspire Docker Services
+        builder.AddMongoDBClient(connectionName: "delisciodb");
+        builder.AddRedisClient(connectionName: "redis");
+        builder.AddRedisOutputCache(connectionName: "redis-output");
+
+        builder.Services.AddLinksModule();
+        builder.Services.AddSubmissionsModule();
+
+
+        var app = builder.Build();
+
+        app.MapDefaultEndpoints();
+
+        // Configure the HTTP request pipeline.
+        if (app.Environment.IsDevelopment())
+        {
+            app.UseCors(options =>
+            {
+                options.AllowAnyOrigin()
+                    .AllowAnyMethod()
+                    .AllowAnyHeader();
+            });
+
+            app.MapOpenApi();
+        }
+
+        //app.UseHttpsRedirection();
+
+        app.MapEndpoints();
+
+        app.Run();
+    }
 }
-
-//app.UseHttpsRedirection();
-
-app.MapEndpoints();
-
-await app.RunAsync();
-
-public partial class Program;

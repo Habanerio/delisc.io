@@ -12,21 +12,22 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Aspire.Hosting.AppHost" Version="9.2.1" />
-        <PackageReference Include="Aspire.Hosting.Azure.WebPubSub" Version="9.2.1" />
-        <PackageReference Include="Aspire.Hosting.MongoDB" Version="9.2.1" />
-        <PackageReference Include="Aspire.Hosting.NodeJs" Version="9.2.1" />
-        <PackageReference Include="Aspire.Hosting.RabbitMQ" Version="9.2.1" />
-        <PackageReference Include="Aspire.Hosting.Redis" Version="9.2.1" />
-        <PackageReference Include="Aspire.StackExchange.Redis.OutputCaching" Version="9.2.1" />
+        <PackageReference Include="Aspire.Hosting.AppHost" Version="9.3.0" />
+        <PackageReference Include="Aspire.Hosting.Azure.WebPubSub" Version="9.3.0" />
+        <PackageReference Include="Aspire.Hosting.MongoDB" Version="9.3.0" />
+        <PackageReference Include="Aspire.Hosting.NodeJs" Version="9.3.0" />
+        <PackageReference Include="Aspire.Hosting.RabbitMQ" Version="9.3.0" />
+        <PackageReference Include="Aspire.Hosting.Redis" Version="9.3.0" />
+        <PackageReference Include="Aspire.StackExchange.Redis.OutputCaching" Version="9.3.0" />
         <PackageReference Include="CommunityToolkit.Aspire.Hosting.Ollama" Version="9.4.1-beta.282" />
-        <PackageReference Include="SonarAnalyzer.CSharp" Version="10.9.0.115408">
+        <PackageReference Include="SonarAnalyzer.CSharp" Version="10.10.0.116381">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
     </ItemGroup>
 
     <ItemGroup>
+        <ProjectReference Include="..\..\..\tests\functional\Tests.Functional.Modules\Tests.Functional.Modules.csproj" />
         <ProjectReference Include="..\..\Api\Api.csproj" />
         <ProjectReference Include="..\..\Workers\Crawler\CrawlServices.csproj" />
         <ProjectReference Include="..\..\Workers\Finalizer\FinalizeService\FinalizeService.csproj" />

@@ -26,10 +26,14 @@ public class MongoDbContext : MongoDbContextBase
 /// When you want a single DbContext per Document.
 /// </summary>
 /// <typeparam name="TDocument"></typeparam>
-public class MongoDbContext<TDocument>(IMongoDatabase database) :
-    MongoDbContextBase(database), IMongoDbContext<TDocument>
+public class MongoDbContext<TDocument> :
+    MongoDbContextBase, IMongoDbContext<TDocument>
     where TDocument : IMongoDocument
 {
+    public MongoDbContext(IMongoDatabase database) : base(database) { }
+
+    public MongoDbContext(IMongoClient mongoClient, string databaseName) : base(mongoClient, databaseName) { }
+
     public IMongoCollection<TDocument> Collection => Collection<TDocument>();
 }
 

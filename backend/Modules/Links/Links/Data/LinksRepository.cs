@@ -16,11 +16,15 @@ namespace Links.Data;
 /// <summary>
 /// Responsible for interacting with the MongoDb database for the Links module
 /// </summary>
-public sealed class LinksRepository(IMongoDatabase mongoDb) :
-    MongoDbRepository<LinkEntity>(new LinksDbContext<LinkEntity>(mongoDb)),
+public sealed class LinksRepository :
+    MongoDbRepository<LinkEntity>,
     ILinksRepository
 {
     #region - Links
+
+    public LinksRepository(IMongoDatabase mongoDb) :
+        base(new LinksDbContext<LinkEntity>(mongoDb))
+    { }
 
     public async Task<(IEnumerable<LinkEntity> Results, int TotalPages, int TotalCount)>
         FindAsync(
@@ -70,7 +74,7 @@ public sealed class LinksRepository(IMongoDatabase mongoDb) :
                 (!hasDomain || l.Domain.Equals(domain, StringComparison.InvariantCultureIgnoreCase))
                 &&
                 (!hasTags ||
-                  tags!.All(tag => l.Tags.Any(linkTag => linkTag.Name == tag))
+                  tags!.All(tag => l.Tags.Any(linkTag => linkTag.Name == tag.Trim()))
                 )
                 && (isActive == null || l.IsActive == isActive.Value)
                 && (isFlagged == null || l.IsFlagged == isFlagged.Value)
